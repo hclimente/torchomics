@@ -1,0 +1,30 @@
+name: dna2prot
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # project-specific packages
+  # required
+  - codecov
+  - dvc
+  - dvc-gdrive
+  - ipython
+  - jupyterlab
+  - ipywidgets
+  - libblas=*=*_mkl
+  - nextflow
+  - pip
+  - pytest
+  - python=3
+  - pyyaml
+  - r-irkernel
+  # usually good to have
+  - jax
+  - r
+  - rpy2
+  - r-tidyverse
+  - pandas
+  - scikit-learn
+  - scikit-learn-intelex
+  - seaborn
