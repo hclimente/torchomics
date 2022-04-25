@@ -5,19 +5,23 @@ channels:
   - defaults
 dependencies:
   # project-specific packages
+  - biopython
+  - pytorch
+  - torchinfo
+  - pip:
+      - zenodo_get
   # required
   - codecov
   - dvc
   - dvc-gdrive
   - ipython
-  - jupyterlab
   - ipywidgets
+  - jupyterlab
   - libblas=*=*_mkl
   - nextflow
   - pip
   - pytest
   - python=3
-  - pyyaml
   - r-irkernel
   # usually good to have
   - jax
