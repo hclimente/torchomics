@@ -14,7 +14,7 @@ setup: $(CONDA_ENV)
 	pip install --upgrade --force-reinstall "jax[cpu]"
 
 gpu_setup: setup
-	$(CONDA_ENV) && mamba uninstall pytorch && mamba install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+	$(CONDA_ACTIVATE) && mamba uninstall pytorch && mamba install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 test:
 	$(CONDA_ACTIVATE); pytest test

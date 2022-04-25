@@ -71,7 +71,7 @@ with trange(epochs) as epochs:
                 expr_test.to(device),
             )
             te_pred = net(pos_test, neg_test)
-            te_loss = criterion(out, expr_test)
+            te_loss = criterion(te_pred, expr_test)
             te_losses.append(te_loss.item())
 
             torch.save(net.state_dict(), "model.torch")
