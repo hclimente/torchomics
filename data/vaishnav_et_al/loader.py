@@ -23,7 +23,7 @@ class Vaishnav(Dataset):
         return (
             self.positive_sequences[index, :]
             if random() < 0.5
-            else self.negative_sequences_sequences[index, :],
+            else self.negative_sequences[index, :],
             self.expression[index, None],
         )
 

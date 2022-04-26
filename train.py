@@ -46,14 +46,14 @@ with trange(epochs) as epochs:
     for epoch in epochs:
         test_data = iter(te_loader)
         with tqdm(tr_loader, total=int(len(tr_loader) / batch_size)) as tepoch:
-            for pos, neg, expr in tepoch:
+            for seq, expr in tepoch:
                 # train
                 net.train()
 
-                pos, neg, expr = pos.to(device), neg.to(device), expr.to(device)
+                seq, expr = seq.to(device), expr.to(device)
 
                 optimizer.zero_grad()
-                out = net(pos, neg)
+                out = net(seq)
                 tr_loss = criterion(out, expr)
                 tr_loss.backward()
                 optimizer.step()
@@ -64,13 +64,9 @@ with trange(epochs) as epochs:
             # test
             net.eval()
 
-            pos_test, neg_test, expr_test = next(test_data)
-            pos_test, neg_test, expr_test = (
-                pos_test.to(device),
-                neg_test.to(device),
-                expr_test.to(device),
-            )
-            te_pred = net(pos_test, neg_test)
+            seq_test, expr_test = next(test_data)
+            seq_test, expr_test = seq_test.to(device), expr_test.to(device)
+            te_pred = net(seq_test)
             te_loss = criterion(te_pred, expr_test)
             te_losses.append(te_loss.item())
 
