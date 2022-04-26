@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from tqdm import trange, tqdm
 
 from data import Vaishnav
-from models import BaselineCNN
+from models import OneStrandCNN
 
 epochs = 5
 batch_size = 1024
@@ -38,7 +38,7 @@ tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
 te = torch.load("data/vaishnav_et_al/complex_test.torch")
 te_loader = DataLoader(te, batch_size=len(te), shuffle=True)
 
-net = BaselineCNN().to(device)
+net = OneStrandCNN().to(device)
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(net.parameters(), lr=0.0005, weight_decay=1e-4)
 

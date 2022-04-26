@@ -1,3 +1,5 @@
+from random import random
+
 from Bio.Seq import Seq
 import torch
 from torch.utils.data import Dataset
@@ -19,8 +21,9 @@ class Vaishnav(Dataset):
 
     def __getitem__(self, index):
         return (
-            self.positive_sequences[index, :],
-            self.positive_sequences[index, :],
+            self.positive_sequences[index, :]
+            if random() < 0.5
+            else self.negative_sequences_sequences[index, :],
             self.expression[index, None],
         )
 
