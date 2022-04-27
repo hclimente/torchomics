@@ -7,6 +7,7 @@ dependencies:
   # project-specific packages
   - biopython
   - pytorch
+  - torchvision
   - torchinfo
   - pip:
       - zenodo_get

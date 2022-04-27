@@ -1,31 +1,32 @@
-from random import random
-
-from Bio.Seq import Seq
 import torch
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 from models.utils import one_hot_encode
+from data import ReverseComplement
 
 
 class Vaishnav(Dataset):
-    def __init__(self, sequences, expression):
+    def __init__(
+        self, sequences, expression, transform=transforms.Compose(ReverseComplement())
+    ):
 
         pos_seqs = [pad(x, 110) for x in sequences]
-        neg_seqs = [Seq(x).reverse_complement() for x in pos_seqs]
-        self.positive_sequences = torch.stack([one_hot_encode(x) for x in pos_seqs])
-        self.negative_sequences = torch.stack([one_hot_encode(x) for x in neg_seqs])
+        self.sequences = torch.stack([one_hot_encode(x) for x in pos_seqs])
         self.expression = torch.tensor(expression).float()
+        self.transforms = transform
 
     def __len__(self):
         return min(6000000, len(self.expression))
 
     def __getitem__(self, index):
-        return (
-            self.positive_sequences[index, :]
-            if random() < 0.5
-            else self.negative_sequences[index, :],
-            self.expression[index, None],
-        )
+        sequence = self.sequences[index, :]
+        expression = self.expression[index, None]
+
+        if self.transforms:
+            sequence = self.transforms(sequence)
+
+        return sequence, expression
 
 
 def pad(seq, expected):
