@@ -3,6 +3,7 @@ work/
 env/
 
 ### Data files
+*.pt
 *.torch
 *.tsv
 *.csv

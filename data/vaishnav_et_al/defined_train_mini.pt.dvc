@@ -1,0 +1,4 @@
+outs:
+- md5: ccddf1de03250f5862c6bff602d9f4f9
+  size: 64200999
+  path: defined_train_mini.pt
