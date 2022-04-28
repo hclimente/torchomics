@@ -8,11 +8,11 @@ class OneStrandCNN(nn.Module):
         self.p_dropout = p_dropout
 
         self.conv = nn.Sequential(
-            nn.Conv1d(4, 256, 30, padding="same"),
-            nn.Conv1d(256, 256, 30, padding="same"),
-            nn.Conv1d(256, 128, 30, padding="same"),
+            nn.Conv1d(4, 256, 29, padding="same"),
+            nn.Conv1d(256, 256, 29, padding="same"),
+            nn.Conv1d(256, 128, 29, padding="same"),
             nn.ReLU(),
-            nn.Conv1d(128, 128, 30, padding="same"),
+            nn.Conv1d(128, 128, 29, padding="same"),
             nn.ReLU(),
         )
 
