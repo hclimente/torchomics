@@ -41,3 +41,6 @@ class BaselineCNN(nn.Module):
         x = self.fc(x)
 
         return x
+
+    def __name__(self):
+        return "v0_baseline"

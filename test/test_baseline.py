@@ -20,3 +20,8 @@ def test_forward():
 
     assert np.all(list(cnn.forward(seq, seq).shape) == [1, 1])
     assert np.all(list(cnn.forward(seq3, seq3).shape) == [3, 1])
+
+
+def test_str():
+
+    assert f"{cnn}" == "v0_baseline"

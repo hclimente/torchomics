@@ -1,15 +1,11 @@
 import torch
 from torch.utils.data import Dataset
-from torchvision import transforms
 
 from models.utils import one_hot_encode
-from data import ReverseComplement
 
 
 class Vaishnav(Dataset):
-    def __init__(
-        self, sequences, expression, transform=transforms.Compose(ReverseComplement())
-    ):
+    def __init__(self, sequences, expression, transform=None):
 
         pos_seqs = [pad(x, 110) for x in sequences]
         self.sequences = torch.stack([one_hot_encode(x) for x in pos_seqs])

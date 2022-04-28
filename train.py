@@ -1,9 +1,10 @@
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import trange, tqdm
 
-from data import Vaishnav
+from data import Vaishnav, ReverseComplement
 from models import OneStrandCNN
 
 epochs = 5
@@ -34,6 +35,7 @@ def get_loader(path, save_path):
 #                       "complex_test.torch")
 
 tr = torch.load("data/vaishnav_et_al/complex_train.torch")
+tr.transform = transforms.Compose(ReverseComplement())
 tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
 te = torch.load("data/vaishnav_et_al/complex_test.torch")
 te_loader = DataLoader(te, batch_size=len(te), shuffle=True)
@@ -64,11 +66,16 @@ with trange(epochs) as epochs:
             # test
             net.eval()
 
+            rc = ReverseComplement(1)
+
             seq_test, expr_test = next(test_data)
             seq_test, expr_test = seq_test.to(device), expr_test.to(device)
-            te_pred = net(seq_test)
+            # average prediction for sequence and its rc
+            te_pred = (net(seq_test) + net(rc(seq_test))) / 2
             te_loss = criterion(te_pred, expr_test)
             te_losses.append(te_loss.item())
 
-            torch.save(net.state_dict(), "model.torch")
-            torch.save((tr_losses, te_losses, te_pred), "losses.torch")
+            torch.save(net.state_dict(), f"results/models/{net.__name__}.torch")
+            torch.save(
+                (tr_losses, te_losses, te_pred), f"results/losses/{net.__name__}.torch"
+            )
