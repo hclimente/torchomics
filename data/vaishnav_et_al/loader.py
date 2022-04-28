@@ -5,12 +5,12 @@ from models.utils import one_hot_encode
 
 
 class Vaishnav(Dataset):
-    def __init__(self, sequences, expression, transform=None):
+    def __init__(self, sequences, expression, transforms=None):
 
-        pos_seqs = [pad(x, 110) for x in sequences]
+        pos_seqs = [pad(x, 80) for x in sequences]
         self.sequences = torch.stack([one_hot_encode(x) for x in pos_seqs])
         self.expression = torch.tensor(expression).float()
-        self.transforms = transform
+        self.transforms = transforms
 
     def __len__(self):
         return min(6000000, len(self.expression))
@@ -26,6 +26,11 @@ class Vaishnav(Dataset):
 
 
 def pad(seq, expected):
+
+    # remove primers
+    seq = seq.removeprefix("TGCATTTTTTTCACATC")
+    seq = seq.removesuffix("GGTTACGGCTGTT")
+
     if len(seq) == expected:
         return seq
     if len(seq) < expected:

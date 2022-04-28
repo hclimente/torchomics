@@ -1,3 +1,4 @@
+import random
 from typing import Any
 
 import numpy as np
@@ -31,3 +32,9 @@ def exponential_linspace_int(start, end, num, divisible_by=1):
 
     base = np.exp(np.log(end / start) / (num - 1))
     return [_round(start * base**i) for i in range(num)]
+
+
+def fix_seeds(seed):
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)

@@ -10,7 +10,9 @@ class BaselineCNN(nn.Module):
 
         self.strand_conv = nn.Sequential(
             nn.Conv1d(4, 256, 30, padding="same"),
+            nn.ReLU(),
             nn.Conv1d(256, 256, 30, padding="same"),
+            nn.ReLU(),
         )
 
         self.joint_conv = nn.Sequential(

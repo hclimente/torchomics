@@ -1,3 +1,5 @@
+from os.path import isfile
+
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
@@ -6,6 +8,7 @@ from tqdm import trange, tqdm
 
 from data import Vaishnav, ReverseComplement
 from models import OneStrandCNN
+from models.utils import fix_seeds
 
 epochs = 5
 batch_size = 1024
@@ -13,31 +16,35 @@ batch_size = 1024
 device = "cuda"
 tr_losses = []
 te_losses = []
+seed = 0
+
+fix_seeds(seed)
 
 
-def get_loader(path, save_path):
+def load_data(table, cached, sep="\t"):
 
-    sequences = pd.read_csv(
-        "data/vaishnav_et_al/" + path,
-        # nrows=train_size,
-        sep="\t",
-        names=["seq", "expr"],
-    )
-    ds = Vaishnav(sequences.seq, sequences.expr)
-    torch.save(ds, "data/vaishnav_et_al/" + save_path)
+    cached = f"data/vaishnav_et_al/{cached}"
 
-    return DataLoader(ds, batch_size=batch_size, shuffle=True)
+    if isfile(cached):
+        ds = torch.load(cached)
+    else:
+        sequences = pd.read_csv(
+            f"data/vaishnav_et_al/{table}",
+            # nrows=train_size,
+            sep=sep,
+            names=["seq", "expr"],
+        )
+        ds = Vaishnav(sequences.seq, sequences.expr)
+        torch.save(ds, cached)
+
+    return ds
 
 
-# tr_loader = get_loader("complex_media_training_data_Glu.txt",
-#                       "complex_train.torch")
-# tr_loader = get_loader("Random_testdata_complex_media.txt",
-#                       "complex_test.torch")
-
-tr = torch.load("data/vaishnav_et_al/complex_train.torch")
+tr = load_data("defined_media_training_data_SC_Ura.txt", "defined_train.pt")
 tr.transform = transforms.Compose(ReverseComplement())
 tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
-te = torch.load("data/vaishnav_et_al/complex_test.torch")
+
+te = load_data("Random_testdata_defined_media.csv", "defined_test.pt", sep=",")
 te_loader = DataLoader(te, batch_size=len(te), shuffle=True)
 
 net = OneStrandCNN().to(device)
