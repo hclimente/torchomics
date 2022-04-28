@@ -1,12 +1,9 @@
-from os.path import isfile
-
-import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import trange, tqdm
 
-from data import Vaishnav, ReverseComplement
+from data import load_vaishnav, ReverseComplement
 from models import OneStrandCNN
 from models.utils import fix_seeds
 
@@ -20,31 +17,11 @@ seed = 0
 
 fix_seeds(seed)
 
-
-def load_data(table, cached, sep="\t"):
-
-    cached = f"data/vaishnav_et_al/{cached}"
-
-    if isfile(cached):
-        ds = torch.load(cached)
-    else:
-        sequences = pd.read_csv(
-            f"data/vaishnav_et_al/{table}",
-            # nrows=train_size,
-            sep=sep,
-            names=["seq", "expr"],
-        )
-        ds = Vaishnav(sequences.seq, sequences.expr)
-        torch.save(ds, cached)
-
-    return ds
-
-
-tr = load_data("defined_media_training_data_SC_Ura.txt", "defined_train.pt")
+tr = load_vaishnav("defined_media_training_data_SC_Ura.txt", "defined_train.pt")
 tr.transform = transforms.Compose(ReverseComplement())
 tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
 
-te = load_data("Random_testdata_defined_media.csv", "defined_test.pt", sep=",")
+te = load_vaishnav("Random_testdata_defined_media.txt", "defined_test.pt")
 te_loader = DataLoader(te, batch_size=len(te), shuffle=True)
 
 net = OneStrandCNN().to(device)

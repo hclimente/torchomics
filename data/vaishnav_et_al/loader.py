@@ -1,3 +1,6 @@
+from os.path import isfile
+
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
@@ -38,3 +41,22 @@ def pad(seq, expected):
         return seq + tail
     if len(seq) > expected:
         return seq[:expected]
+
+
+def load_vaishnav(table, cached, sep="\t"):
+
+    cached = f"data/vaishnav_et_al/{cached}"
+
+    if isfile(cached):
+        ds = torch.load(cached)
+    else:
+        sequences = pd.read_csv(
+            f"data/vaishnav_et_al/{table}",
+            # nrows=train_size,
+            sep=sep,
+            names=["seq", "expr"],
+        )
+        ds = Vaishnav(sequences.seq, sequences.expr)
+        torch.save(ds, cached)
+
+    return ds

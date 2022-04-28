@@ -4,6 +4,7 @@ env/
 
 ### Data files
 *.torch
+*.pt
 *.tsv
 *.csv
 *.npz
