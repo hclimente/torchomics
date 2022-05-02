@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 from data.utils import one_hot_encode, pad
 
 
-class Vaishnav(Dataset):
+class Dream(Dataset):
     def __init__(self, sequences, expression, transforms=None):
 
         pos_seqs = [pad(x, 80) for x in sequences]
@@ -13,7 +13,7 @@ class Vaishnav(Dataset):
         self.transforms = transforms
 
     def __len__(self):
-        return min(6000000, len(self.expression))
+        return len(self.expression)
 
     def __getitem__(self, index):
         sequence = self.sequences[index, :]

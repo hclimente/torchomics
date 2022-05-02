@@ -3,8 +3,7 @@ import random
 from Bio.Seq import Seq
 import torch
 
-from data import MixUp, Mutate, ReverseComplement
-from models.utils import one_hot_encode
+from data import MixUp, Mutate, ReverseComplement, one_hot_encode
 
 
 seq_len = 100

@@ -1,0 +1,4 @@
+outs:
+- md5: 1432d559ee704ef76179947cd5855436
+  size: 9206241
+  path: sample_submission.txt

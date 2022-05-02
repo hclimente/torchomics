@@ -3,8 +3,8 @@ import random
 import numpy as np
 import torch
 
+from data import one_hot_encode
 from models import BaselineCNN
-from models.utils import one_hot_encode
 
 cnn = BaselineCNN()
 input_length = 110
@@ -24,4 +24,4 @@ def test_forward():
 
 def test_str():
 
-    assert f"{cnn}" == "v0_baseline"
+    assert cnn.__name__() == "v0_baseline"
