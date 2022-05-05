@@ -18,7 +18,6 @@ dependencies:
   - ipython
   - ipywidgets
   - jupyterlab
-  - jupyter_contrib_nbextensions
   - libblas=*=*_mkl
   - nextflow
   - pip
