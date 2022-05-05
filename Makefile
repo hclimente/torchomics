@@ -33,7 +33,13 @@ $(CONDA_ENV): environment.yml
 	mamba env create --force --prefix $(CONDA_ENV) --file environment.yml
 
 jupyter:
-	$(CONDA_ACTIVATE); export PYTHONPATH=`pwd`:$${PYTHONPATH}; jupyter lab --notebook-dir=./
+	$(CONDA_ACTIVATE); jupyter lab --notebook-dir=./
+
+jupyter_server:
+	$(CONDA_ACTIVATE); jupyter lab --notebook-dir=./ --no-browser --port 8080
+
+jupyter_client:
+	ssh -N -L localhost:8080:localhost:8080 $(SERVER)
 
 clean:
 	rm -rf env/
