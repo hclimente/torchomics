@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class BaselineCNN(nn.Module):
-    def __init__(self, p_dropout=0.2):
+    def __init__(self, p_dropout=0.2, seq_length=80):
         super(BaselineCNN, self).__init__()
 
         self.p_dropout = p_dropout
@@ -24,7 +24,7 @@ class BaselineCNN(nn.Module):
 
         self.fc = nn.Sequential(
             nn.Dropout(self.p_dropout),
-            nn.Linear(256 * 110, 256),
+            nn.Linear(256 * seq_length, 256),
             nn.ReLU(),
             nn.Dropout(self.p_dropout),
             nn.Linear(256, 256),
@@ -32,10 +32,10 @@ class BaselineCNN(nn.Module):
             nn.Linear(256, 1),
         )
 
-    def forward(self, plus, minus):
+    def forward(self, seq, rc):
 
-        x1 = self.strand_conv(plus)
-        x2 = self.strand_conv(minus)
+        x1 = self.strand_conv(seq)
+        x2 = self.strand_conv(rc)
 
         x = torch.hstack((x1, x2))
         x = self.joint_conv(x)
@@ -44,5 +44,6 @@ class BaselineCNN(nn.Module):
 
         return x
 
-    def __name__(self):
+    @staticmethod
+    def __name__():
         return "v0_baseline"

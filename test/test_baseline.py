@@ -6,8 +6,8 @@ import torch
 from data import one_hot_encode
 from models import BaselineCNN
 
-cnn = BaselineCNN()
 input_length = 110
+cnn = BaselineCNN(seq_length=input_length)
 
 
 def test_forward():
