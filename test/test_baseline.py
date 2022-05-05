@@ -24,4 +24,4 @@ def test_forward():
 
 def test_str():
 
-    assert cnn.__name__() == "v0_baseline"
+    assert cnn.__class__.__name__ == "BaselineCNN"

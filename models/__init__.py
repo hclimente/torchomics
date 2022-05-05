@@ -1,7 +1,7 @@
 from ._version import __version__
 
-from .simple_cnn.v0_baseline import BaselineCNN
-from .simple_cnn.v1_one_strand import OneStrandCNN
+from .vaishnav import BaselineCNN, OneStrandCNN
+from .simple_cnn import SimpleCNN
 from .utils import fix_seeds
 
-__all__ = ["BaselineCNN", "OneStrandCNN", "fix_seeds"]
+__all__ = ["BaselineCNN", "OneStrandCNN", "SimpleCNN", "fix_seeds"]

@@ -59,7 +59,8 @@ with trange(epochs) as epochs:
             te_loss = criterion(te_pred, expr_test)
             te_losses.append(te_loss.item())
 
-            torch.save(net.state_dict(), f"results/models/{net.__name__}.torch")
+            net_name = net.__class__.__name__
+            torch.save(net.state_dict(), f"results/models/{net_name}.torch")
             torch.save(
-                (tr_losses, te_losses, te_pred), f"results/losses/{net.__name__}.torch"
+                (tr_losses, te_losses, te_pred), f"results/losses/{net_name}.torch"
             )

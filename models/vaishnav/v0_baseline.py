@@ -43,7 +43,3 @@ class BaselineCNN(nn.Module):
         x = self.fc(x)
 
         return x
-
-    @staticmethod
-    def __name__():
-        return "v0_baseline"
