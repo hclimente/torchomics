@@ -6,6 +6,8 @@ channels:
 dependencies:
   # project-specific packages
   - biopython
+  - papermill
+  - pyprojroot
   - pytorch
   - torchvision
   - torchinfo
