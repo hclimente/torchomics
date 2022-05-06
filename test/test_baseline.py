@@ -4,10 +4,10 @@ import numpy as np
 import torch
 
 from data import one_hot_encode
-from models import BaselineCNN
+from models import VaishnavCNN
 
 input_length = 110
-cnn = BaselineCNN(seq_length=input_length)
+cnn = VaishnavCNN(seq_length=input_length)
 
 
 def test_forward():
@@ -24,4 +24,4 @@ def test_forward():
 
 def test_str():
 
-    assert cnn.__class__.__name__ == "BaselineCNN"
+    assert cnn.__class__.__name__ == "VaishnavCNN"

@@ -25,6 +25,7 @@ dependencies:
   - python=3
   - r-irkernel
   # usually good to have
+  - gitpython
   - jax
   - r
   - rpy2

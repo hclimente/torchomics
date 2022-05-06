@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class BaselineCNN(nn.Module):
+class VaishnavCNN(nn.Module):
     def __init__(self, p_dropout=0.2, seq_length=80):
-        super(BaselineCNN, self).__init__()
+        super(VaishnavCNN, self).__init__()
 
         self.p_dropout = p_dropout
 
