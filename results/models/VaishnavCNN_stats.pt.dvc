@@ -1,0 +1,4 @@
+outs:
+- md5: 1f88b3b497118e744d1c8ada354bea56
+  size: 592175
+  path: VaishnavCNN_stats.pt
