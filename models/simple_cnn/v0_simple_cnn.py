@@ -21,7 +21,7 @@ class SimpleCNN(nn.Module):
             nn.Linear(96, 1),
         )
 
-    def forward(self, x):
+    def forward(self, x, rc):
         x = self.conv(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)
