@@ -40,14 +40,14 @@ class Basenji(nn.Module):
             Residual(dilated_conv_block(int(3 * (1.5**0)))),
             Residual(dilated_conv_block(int(3 * (1.5**1)))),
             Residual(dilated_conv_block(int(3 * (1.5**2)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 3)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 4)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 5)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 6)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 7)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 8)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 9)))),
-            # Residual(dilated_conv_block(int(3 * (1.5 ** 10)))),
+            Residual(dilated_conv_block(int(3 * (1.5**3)))),
+            Residual(dilated_conv_block(int(3 * (1.5**4)))),
+            Residual(dilated_conv_block(int(3 * (1.5**5)))),
+            Residual(dilated_conv_block(int(3 * (1.5**6)))),
+            Residual(dilated_conv_block(int(3 * (1.5**7)))),
+            Residual(dilated_conv_block(int(3 * (1.5**8)))),
+            Residual(dilated_conv_block(int(3 * (1.5**9)))),
+            Residual(dilated_conv_block(int(3 * (1.5**10)))),
         )
 
         self.fc = nn.Sequential(
