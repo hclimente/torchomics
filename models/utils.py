@@ -25,3 +25,13 @@ def spearmanr(x, y):
     y = y.cpu().detach().numpy()
 
     return scipy.stats.spearmanr(x, y)[0]
+
+
+class Residual(torch.nn.Module):
+    def __init__(self, module):
+        super(Residual, self).__init__()
+
+        self.module = module
+
+    def forward(self, x):
+        return x + self.module(x)
