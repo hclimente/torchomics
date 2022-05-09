@@ -1,4 +1,4 @@
 outs:
-- md5: ca04c86fe927f9d4c1419dc4d105f4be
+- md5: cf5f9a32e78b0b2ddd764b429c9f9d48
   size: 770119
   path: SimpleCNN.pt

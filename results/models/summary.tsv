@@ -1,2 +1,3 @@
-model	pearson	spearman	sha
-VaishnavCNN	nan	nan	aa9374a285456b30d459341292337107750bd282
+model	tr_pearson	tr_spearman val_pearson val_spearman    sha
+VaishnavCNN	nan	nan nan nan	aa9374a285456b30d459341292337107750bd282
+SimpleCNN	nan nan 0.684528212525282	0.6974933450596968	a29a56e22278b8b49b6fd57bf4182a2d0ddfae5f
