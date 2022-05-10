@@ -13,16 +13,16 @@ def fix_seeds(seed):
 
 def pearsonr(x, y):
 
-    x = x.cpu().detach().numpy().flatten()
-    y = y.cpu().detach().numpy().flatten()
+    x = x.cpu().detach().float().numpy().flatten()
+    y = y.cpu().detach().float().numpy().flatten()
 
     return scipy.stats.pearsonr(x, y)[0]
 
 
 def spearmanr(x, y):
 
-    x = x.cpu().detach().numpy()
-    y = y.cpu().detach().numpy()
+    x = x.cpu().detach().float().numpy()
+    y = y.cpu().detach().float().numpy()
 
     return scipy.stats.spearmanr(x, y)[0]
 
