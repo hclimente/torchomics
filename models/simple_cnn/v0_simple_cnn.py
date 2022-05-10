@@ -89,3 +89,39 @@ class SimpleCNN_GELU(nn.Module):
         x = x.view(x.size()[0], -1)
         x = self.fc(x)
         return x
+
+
+class DeepCNN(nn.Module):
+    def __init__(self):
+        super(DeepCNN, self).__init__()
+
+        def conv_block(channels_in, channels_out, width=15):
+            return nn.Sequential(
+                nn.Conv1d(channels_in, channels_out, width, padding="same"),
+                nn.ReLU(),
+                nn.MaxPool1d(2),
+            )
+
+        self.conv = nn.Sequential(
+            conv_block(4, 250),
+            conv_block(250, 360),
+            conv_block(360, 432),
+            conv_block(432, 520),
+            conv_block(520, 624),
+        )
+
+        self.fc = nn.Sequential(
+            nn.Linear(1248, 512),
+            nn.ReLU(),
+            nn.Linear(512, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Linear(128, 1),
+        )
+
+    def forward(self, x, rc=None):
+        x = self.conv(x)
+        x = x.view(x.size()[0], -1)
+        x = self.fc(x)
+        return x
