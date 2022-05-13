@@ -7,24 +7,29 @@ import torch
 
 def fix_seeds(seed):
     torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
 
 
 def pearsonr(x, y):
 
-    x = x.cpu().detach().float().numpy().flatten()
-    y = y.cpu().detach().float().numpy().flatten()
+    x = numpify(x).flatten()
+    y = numpify(y).flatten()
 
     return scipy.stats.pearsonr(x, y)[0]
 
 
 def spearmanr(x, y):
 
-    x = x.cpu().detach().float().numpy()
-    y = y.cpu().detach().float().numpy()
+    x = numpify(x)
+    y = numpify(y)
 
     return scipy.stats.spearmanr(x, y)[0]
+
+
+def numpify(x):
+    return x.cpu().detach().float().numpy()
 
 
 class Residual(torch.nn.Module):

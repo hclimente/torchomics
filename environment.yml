@@ -11,6 +11,7 @@ dependencies:
   - pytorch
   - torchvision
   - torchinfo
+  - umap-learn
   - pip:
       - zenodo_get
   # required

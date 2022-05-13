@@ -34,7 +34,7 @@ class SimpleCNN_BN(nn.Module):
 
         def conv_block(channels_in, channels_out, width=5):
             return nn.Sequential(
-                nn.Conv1d(channels_in, channels_out, width, padding="same"),
+                nn.Conv1d(channels_in, channels_out, width, padding="same", bias=False),
                 nn.BatchNorm1d(channels_out),
                 nn.ReLU(),
                 nn.MaxPool1d(2),
