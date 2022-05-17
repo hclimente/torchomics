@@ -8,11 +8,11 @@ class Mutate:
         self.n = n
 
     def __call__(self, seq):
-        length = seq.shape[1]
+        length = seq.shape[2]
 
         pos = torch.randint(high=length, size=(self.n,))
         perm = torch.vstack([torch.randperm(4) for _ in range(self.n)]).T
-        seq[:, pos] = seq[perm, pos]
+        seq[:, :, pos] = seq[:, perm, pos]
 
         return seq
 
@@ -21,8 +21,8 @@ class ReverseComplement:
     def __init__(self, p=0.5):
         self.p = p
 
-    def __call__(self, seq):
-        return torch.flip(seq, (0, 1)) if random() < self.p else seq
+    def __call__(self, x):
+        return x.flip(1, 2) if random() < self.p else x
 
 
 class MixUp:

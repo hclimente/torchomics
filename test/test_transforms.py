@@ -1,14 +1,14 @@
 import random
 
-from Bio.Seq import Seq
 import torch
+from Bio.Seq import Seq
 
 from data import MixUp, Mutate, ReverseComplement, one_hot_encode
-
 
 seq_len = 100
 seq = "".join(random.choice(["A", "C", "G", "T"]) for _ in range(seq_len))
 seq_1h = one_hot_encode(seq)
+seq_1h = seq_1h[None, :]
 
 
 def test_mutate():
@@ -29,11 +29,16 @@ def test_mutate():
 
 def test_reverseComplement():
 
+    # work on three sequences
+    seq3_1h = torch.vstack((seq_1h, seq_1h, seq_1h))
+
     rc_1h = one_hot_encode(Seq(seq).reverse_complement())
+    rc_1h = rc_1h[None, :]
+    rc3_1h = torch.vstack((rc_1h, rc_1h, rc_1h))
 
     r = ReverseComplement(1)
 
-    assert torch.all(rc_1h == r(seq_1h))
+    assert torch.all(rc3_1h == r(seq3_1h))
 
 
 def test_mixup():
