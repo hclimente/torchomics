@@ -1,6 +1,7 @@
 from ._version import __version__
 from .basenji import Basenji
 from .simple_cnn import DeepCNN, SimpleCNN, SimpleCNN_BN, SimpleCNN_GELU, SimpleCNN_RC
+from .transformer_cnn import TransformerCNN
 from .utils import fix_seeds
 from .vaishnav import OneStrandCNN, VaishnavCNN
 
@@ -12,6 +13,7 @@ __all__ = [
     "SimpleCNN_GELU",
     "DeepCNN",
     "SimpleCNN_RC",
+    "TransformerCNN",
     "Basenji",
     "fix_seeds",
 ]
