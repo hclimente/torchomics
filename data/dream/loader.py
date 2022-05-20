@@ -1,20 +1,16 @@
 import torch
 from torch.utils.data import Dataset
 
-from data.transforms import ReverseComplement
-from data.utils import one_hot_encode, pad
-
 
 class Dream(Dataset):
-    def __init__(self, sequences, expression, transforms=None):
+    def __init__(
+        self, sequences: torch.Tensor, expression: torch.Tensor, transforms=None
+    ):
 
-        pos_seqs = [pad(x, 80) for x in sequences]
-        self.sequences = torch.stack([one_hot_encode(x) for x in pos_seqs])
-        self.expression = torch.tensor(expression).float()
+        self.sequences = sequences
+        self.expression = expression.float()
         self.transforms = transforms
-
-        rc = ReverseComplement()
-        self.rc_sequences = rc(self.sequences)
+        self.cache_rc()
 
     def __len__(self):
         return len(self.expression)
@@ -28,3 +24,6 @@ class Dream(Dataset):
             seq = self.transforms(seq)
 
         return seq, rc, expression
+
+    def cache_rc(self):
+        self.rc_sequences = self.sequences.flip(1, 2)
