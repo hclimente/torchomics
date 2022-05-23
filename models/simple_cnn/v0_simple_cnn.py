@@ -100,7 +100,8 @@ class DeepCNN(nn.Module):
         def conv_block(channels_in, channels_out, width=15):
             return nn.Sequential(
                 nn.Conv1d(channels_in, channels_out, width, padding="same"),
-                nn.ReLU(),
+                nn.BatchNorm1d(channels_out),
+                nn.GELU(),
                 nn.MaxPool1d(2),
             )
 
