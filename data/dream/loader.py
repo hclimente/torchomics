@@ -10,7 +10,6 @@ class Dream(Dataset):
         self.sequences = sequences
         self.expression = expression.float()
         self.transforms = transforms
-        self.cache_rc()
 
     def __len__(self):
         return len(self.expression)
