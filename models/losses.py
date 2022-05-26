@@ -26,7 +26,7 @@ class ClassificationLoss(nn.Module):
     labels. Predictions are taken to be model logits i.e. not softmax
     probabilities
 
-    If used, one shoud create a multi-output models and modify outputs
+    If used, one shoud create a multi-output model and modify outputs
     according to:
 
     >>> y_pred = torch.argmax(nn.Softmax()(y_pred), axis=1)
