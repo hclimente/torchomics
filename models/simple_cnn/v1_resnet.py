@@ -4,7 +4,7 @@ from models.layers import RevCompConv1D
 
 
 class ResNet(nn.Module):
-    def __init__(self):
+    def __init__(self, nb_outputs=1):
         super(ResNet, self).__init__()
 
         def conv_block(channels_in, channels_out, width=16, conv=nn.Conv1d):
@@ -27,7 +27,7 @@ class ResNet(nn.Module):
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(64, 1),
+            nn.Linear(64, nb_outputs),
         )
 
     def forward(self, x, rc=None):
