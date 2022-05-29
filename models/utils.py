@@ -4,7 +4,7 @@ from functools import reduce
 import numpy as np
 import scipy
 import torch
-from torch.nn.init import constant_, normal_, xavier_uniform
+from torch.nn.init import constant_, normal_, xavier_uniform_
 
 
 def fix_seeds(seed):
@@ -63,7 +63,7 @@ def init_weights(layer, init="glorot"):
 
     if "Conv" in layer_type or "Linear" in layer_type:
         if init == "glorot":
-            xavier_uniform(layer.weight.data)
+            xavier_uniform_(layer.weight.data)
         else:
             normal_(layer.weight.data, 0.0, 0.02)
 
