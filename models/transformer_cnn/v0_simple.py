@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-class TransformerCNN(nn.Module):
+class RNN(nn.Module):
     def __init__(self):
-        super(TransformerCNN, self).__init__()
+        super(RNN, self).__init__()
 
         def conv_block(channels_in, channels_out, width):
             return nn.Sequential(
@@ -16,18 +16,21 @@ class TransformerCNN(nn.Module):
             conv_block(4, 256, 15),
         )
 
-        self.gru = nn.GRU(input_size=80, hidden_size=80, num_layers=1)
+        self.gru = nn.GRU(input_size=256, hidden_size=256, num_layers=1)
 
         self.fc = nn.Sequential(
-            nn.Linear(20480, 1024),
+            nn.Linear(256, 256),
             nn.Dropout(0.05),
             nn.ReLU(),
-            nn.Linear(1024, 1),
+            nn.Linear(256, 1),
         )
 
     def forward(self, x, rc=None):
-        x = self.convs(x)
-        _, x = self.gru(x, x)
-        x = x.view(x.size()[0], -1)
-        x = self.fc(x)
+
+        nb_batch, _, seq_length = x.shape
+
+        x = self.convs(x).view(seq_length, nb_batch, -1)
+        x, _ = self.gru(x)
+        x = self.fc(x[-1])
+
         return x
