@@ -1,3 +1,3 @@
-from .v0_simple import TransformerCNN
+from .v0_simple import RNN
 
-__all__ = ["TransformerCNN"]
+__all__ = ["RNN"]

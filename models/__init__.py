@@ -9,7 +9,7 @@ from .simple_cnn import (
     SimpleCNN_GELU,
     SimpleCNN_RC,
 )
-from .transformer_cnn import TransformerCNN
+from .transformer_cnn import RNN
 from .utils import fix_seeds
 from .vaishnav import OneStrandCNN, VaishnavCNN
 
@@ -23,7 +23,7 @@ __all__ = [
     "SimpleCNN_RC",
     "ResNet",
     "MyopicResNet",
-    "TransformerCNN",
+    "RNN",
     "Basenji",
     "fix_seeds",
 ]
