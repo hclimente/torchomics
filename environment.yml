@@ -5,17 +5,17 @@ channels:
   - defaults
 dependencies:
   # project-specific packages
+  - numpy==1.21
   - biopython
-  - papermill
   - pyprojroot
   - pytorch
+  - jupytext
   - torchvision
   - torchinfo
   - umap-learn
   - pip:
       - zenodo_get
   # required
-  - codecov
   - dvc
   - dvc-gdrive
   - ipython
@@ -29,7 +29,6 @@ dependencies:
   - r-irkernel
   # usually good to have
   - gitpython
-  - jax
   - r
   - rpy2
   - r-tidyverse

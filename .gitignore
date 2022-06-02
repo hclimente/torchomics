@@ -18,6 +18,7 @@ env/
 # website: http://jupyter.org/
 
 .ipynb_checkpoints
+*.ipynb
 */.ipynb_checkpoints/*
 
 # IPython
