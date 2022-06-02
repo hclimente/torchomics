@@ -14,6 +14,7 @@
 # ---
 
 # + tags=[]
+import os
 import warnings
 from random import random
 
@@ -32,6 +33,13 @@ from data import Dream, load
 from models import ResNet, fix_seeds
 from models.utils import init_weights, numpify, pearsonr, spearmanr
 
+if os.environ["GCP_PROJECT"]:
+    import torch_xla.core.xla_model as xm
+
+    device = xm.xla_device()
+else:
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 # save the current commit hash iff the repo has no un-committed changes
 repo = Repo(search_parent_directories=True)
 sha = None if repo.is_dirty() else repo.head.object.hexsha
@@ -47,7 +55,6 @@ if not sha:
 model_obj = ResNet
 n_epochs = 10
 batch_size = 1024
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 seed = 0
 
 # data transforms
