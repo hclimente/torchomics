@@ -26,8 +26,6 @@ from pyprojroot import here
 from torch.utils.data import DataLoader
 from torchinfo import summary
 from torchvision import transforms
-from tqdm.notebook import tqdm
-from umap import UMAP
 
 from data import Dream, load
 from models import ResNet, fix_seeds
@@ -43,6 +41,11 @@ if os.environ["GCP_PROJECT"]:
 else:
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     autocast = torch.autocast(device_type=device.type)
+
+if device == torch.device("cpu"):
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
 
 # save the current commit hash iff the repo has no un-committed changes
 repo = Repo(search_parent_directories=True)
