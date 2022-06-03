@@ -19,6 +19,7 @@ import warnings
 from random import random
 
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 import torch
 from git import Repo
@@ -195,7 +196,7 @@ for epoch in range(n_epochs):
         # store model iff on a cuda environment and if the repo is clean
         performance = val_pearson + val_spearman
 
-        if device.type == "cuda" and sha and performance > best_performance:
+        if device.type != "cpu" and sha and performance > best_performance:
 
             best_performance = performance
             torch.save(model.state_dict(), here(f"results/models/{model_name}.pt"))
@@ -257,6 +258,23 @@ with torch.no_grad():
 
     # validation predictions
     val_pred = model(val_seqs.to(device), val_rc.to(device)).cpu()
+
+    # export model predictions
+    te_pred = model(te.sequences.to(device), te.rc_sequences.to(device)).cpu()
+
+    sequences = pd.read_csv(
+        here("data/dream/test_sequences.txt"),
+        sep="\t",
+        names=["seq", "expr"],
+    )
+
+    sequences["expr"] = te_pred.numpy()
+    sequences.to_csv(
+        here(f"results/models/predictions_{model_name}.csv"),
+        header=False,
+        index=False,
+        sep="\t",
+    )
 
 
 # + tags=[]
