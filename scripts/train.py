@@ -34,11 +34,15 @@ from models import ResNet, fix_seeds
 from models.utils import init_weights, numpify, pearsonr, spearmanr
 
 if os.environ["GCP_PROJECT"]:
+    from contextlib import nullcontext
+
     import torch_xla.core.xla_model as xm
 
     device = xm.xla_device()
+    autocast = nullcontext()
 else:
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    autocast = torch.autocast(device_type=device.type)
 
 # save the current commit hash iff the repo has no un-committed changes
 repo = Repo(search_parent_directories=True)
@@ -151,7 +155,7 @@ for epoch in range(n_epochs):
             if rc_transform and random() < 0.5:
                 seq, rc = rc, seq
 
-            with torch.autocast(device_type=device.type):  # mixed precision
+            with autocast:  # mixed precision
                 y_pred = model(seq, rc)
                 tr_loss = criterion(y_pred, y)
 
