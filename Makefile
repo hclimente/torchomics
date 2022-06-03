@@ -42,3 +42,10 @@ jupyter_client:
 
 clean:
 	rm -rf env/
+
+prepare_tpu:
+	pip3 install -r requirements.txt
+	echo 'export XRT_TPU_CONFIG="localservice;0;localhost:51011"' >>~/.bashrc
+	echo 'export PYTHONPATH=$${HOME}/dna2prot:$${PYTHONPATH}' >>~/.bashrc
+	echo 'export GCP_PROJECT=dream' >>~/.bashrc
+	gsutil cp gs://train_sequences/* data/dream/
