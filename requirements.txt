@@ -1,0 +1,13 @@
+biopython
+papermill
+pyprojroot
+umap-learn
+ipython
+ipywidgets
+jupyterlab
+pytest
+gitpython
+pandas
+scikit-learn
+scikit-learn-intelex
+seaborn

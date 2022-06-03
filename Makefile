@@ -11,7 +11,6 @@ SHELL=bash
 setup: $(CONDA_ENV)
 	$(CONDA_ACTIVATE) && R -e "IRkernel::installspec()"
 	pre-commit install
-	pip install --upgrade --force-reinstall "jax[cpu]"
 
 gpu_setup: setup
 	$(CONDA_ACTIVATE) && mamba uninstall pytorch && mamba install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
