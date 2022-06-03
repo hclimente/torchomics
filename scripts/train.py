@@ -38,9 +38,11 @@ if "GCP_PROJECT" in os.environ:
 
     device = xm.xla_device()
     autocast = nullcontext()
+    with_mpt = False
 else:
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     autocast = torch.autocast(device_type=device.type)
+    with_mpt = True
 
 if device == torch.device("cpu"):
     from tqdm.notebook import tqdm
@@ -144,7 +146,7 @@ tr_spearman = 0
 best_performance = -float("inf")
 
 # scaler for mixed precision training
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler(enabled=with_mpt)
 
 for epoch in range(n_epochs):
     with tqdm(tr_loader) as tepoch:
@@ -166,7 +168,11 @@ for epoch in range(n_epochs):
             optimizer.zero_grad()
             scaler.scale(tr_loss).backward()
             scaler.step(optimizer)
+            optimizer.step()
             scaler.update()
+
+            if device.type == "xla":
+                xm.mark_step()
 
             # evaluation
             model.eval()
