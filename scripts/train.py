@@ -31,7 +31,7 @@ from data import Dream, load
 from models import ResNet, fix_seeds
 from models.utils import init_weights, numpify, pearsonr, spearmanr
 
-if os.environ["GCP_PROJECT"]:
+if "GCP_PROJECT" in os.environ:
     from contextlib import nullcontext
 
     import torch_xla.core.xla_model as xm
@@ -250,46 +250,13 @@ model.load_state_dict(
 )
 model.eval()
 
-
-def hook_fn(module, input, output):
-    global embedding
-    embedding = output
-
-
-hook = model.fc[-2].register_forward_hook(hook_fn)
-
 with torch.no_grad():
     # training predictions
     tr_seqs, tr_rc, tr_expression = next(iter(tr_loader))
     tr_pred = model(tr_seqs.to(device), tr_rc.to(device)).cpu()
-    tr_embedding = embedding
 
     # validation predictions
     val_pred = model(val_seqs.to(device), val_rc.to(device)).cpu()
-    val_embedding = embedding
-
-
-# + tags=[]
-def umap(x, y, **sns_kwargs):
-
-    x = numpify(x)
-    y = numpify(y).flatten()
-    x_emb = UMAP().fit_transform(x)
-
-    sns.set_theme()
-    g = sns.scatterplot(x=x_emb[:, 0], y=x_emb[:, 1], hue=y, **sns_kwargs)
-    g.set(xlabel="UMAP 1", ylabel="UMAP 2")
-
-    return g
-
-
-plt.rcParams["figure.figsize"] = 15, 6
-
-fig, ax = plt.subplots(1, 2)
-g = umap(tr_embedding, tr_expression, ax=ax[0])
-g.set_title("Train")
-g = umap(val_embedding, val_expression, ax=ax[1])
-g.set_title("Validation")
 
 
 # + tags=[]
