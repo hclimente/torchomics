@@ -1,11 +1,11 @@
 biopython
-papermill
 pyprojroot
 umap-learn
 ipython
 ipywidgets
 jupyterlab
 pytest
+pytorch_lightning
 gitpython
 pandas
 scikit-learn

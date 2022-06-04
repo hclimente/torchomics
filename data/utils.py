@@ -33,7 +33,7 @@ def load(table, cached, obj, path="data/dream", sep="\t"):
             sep=sep,
             names=["seq", "expr"],
         )
-        ds = obj(sequences.seq, sequences.expr)
+        ds = obj(sequences.seq, torch.Tensor(sequences.expr))
         torch.save(ds, cached)
 
     return ds

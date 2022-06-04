@@ -9,9 +9,9 @@ dependencies:
   - biopython
   - pyprojroot
   - pytorch
+  - pytorch_lightning
   - jupytext
   - torchvision
-  - torchinfo
   - umap-learn
   - pip:
       - zenodo_get

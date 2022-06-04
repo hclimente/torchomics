@@ -1,9 +1,10 @@
+import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.layers import RevCompConv1D
 
 
-class SimpleCNN(nn.Module):
+class SimpleCNN(pl.LightningModule):
     def __init__(self):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Sequential(
