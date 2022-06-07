@@ -39,6 +39,23 @@ def load(table, cached, obj, path="data/dream", sep="\t"):
     return ds
 
 
+def save_preds(preds, sequences_txt, save_path):
+
+    sequences = pd.read_csv(
+        sequences_txt,
+        sep="\t",
+        names=["seq", "expr"],
+    )
+
+    sequences["expr"] = preds.numpy()
+    sequences.to_csv(
+        f"{save_path}/predictions.csv",
+        header=False,
+        index=False,
+        sep="\t",
+    )
+
+
 def one_hot_encode(
     sequence: str,
     alphabet: str = "ACGT",
