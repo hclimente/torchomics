@@ -1,10 +1,11 @@
+import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.layers import RevCompConv1D
 from models.utils import conv_block
 
 
-class ResNet(nn.Module):
+class ResNet(pl.LightningModule):
     def __init__(self, nb_outputs=1):
         super(ResNet, self).__init__()
 
@@ -30,7 +31,7 @@ class ResNet(nn.Module):
         return x
 
 
-class MyopicResNet(nn.Module):
+class MyopicResNet(pl.LightningModule):
     def __init__(self):
         super(MyopicResNet, self).__init__()
 
@@ -56,7 +57,7 @@ class MyopicResNet(nn.Module):
         return x
 
 
-class Residual(nn.Module):
+class Residual(pl.LightningModule):
     def __init__(self, module):
         super(Residual, self).__init__()
 

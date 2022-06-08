@@ -1,7 +1,8 @@
+import pytorch_lightning as pl
 import torch.nn as nn
 
 
-class RNN(nn.Module):
+class RNN(pl.LightningModule):
     def __init__(self):
         super(RNN, self).__init__()
 
