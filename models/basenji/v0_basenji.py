@@ -1,19 +1,11 @@
 import torch.nn as nn
 
-from models.utils import Residual
+from models.utils import Residual, conv_block
 
 
 class Basenji(nn.Module):
     def __init__(self):
         super(Basenji, self).__init__()
-
-        def conv_block(channels_in, channels_out, width):
-            return nn.Sequential(
-                nn.Conv1d(channels_in, channels_out, width, padding="same"),
-                nn.BatchNorm1d(channels_out),
-                nn.GELU(),
-                nn.MaxPool1d(2),
-            )
 
         self.convs = nn.Sequential(
             conv_block(4, 288, 15),
@@ -37,17 +29,17 @@ class Basenji(nn.Module):
             )
 
         self.dilated_convs = nn.Sequential(
-            Residual(dilated_conv_block(int(3 * (1.5**0)))),
-            Residual(dilated_conv_block(int(3 * (1.5**1)))),
-            Residual(dilated_conv_block(int(3 * (1.5**2)))),
-            Residual(dilated_conv_block(int(3 * (1.5**3)))),
-            Residual(dilated_conv_block(int(3 * (1.5**4)))),
-            Residual(dilated_conv_block(int(3 * (1.5**5)))),
-            Residual(dilated_conv_block(int(3 * (1.5**6)))),
-            Residual(dilated_conv_block(int(3 * (1.5**7)))),
-            Residual(dilated_conv_block(int(3 * (1.5**8)))),
-            Residual(dilated_conv_block(int(3 * (1.5**9)))),
-            Residual(dilated_conv_block(int(3 * (1.5**10)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**0)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**1)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**2)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**3)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**4)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**5)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**6)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**7)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**8)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**9)))),
+            Residual(dilated_conv_block(dilation=int(3 * (1.5**10)))),
         )
 
         self.fc = nn.Sequential(

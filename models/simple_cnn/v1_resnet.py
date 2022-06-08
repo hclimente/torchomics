@@ -1,28 +1,12 @@
 import torch.nn as nn
 
 from models.layers import RevCompConv1D
+from models.utils import conv_block
 
 
 class ResNet(nn.Module):
     def __init__(self, nb_outputs=1):
         super(ResNet, self).__init__()
-
-        def conv_block(
-            channels_in, channels_out, width=16, conv=nn.Conv1d, nb_repeats=3
-        ):
-
-            block = []
-
-            for _ in range(nb_repeats):
-                block.append(conv(channels_in, channels_out, width, padding="same"))
-                block.append(nn.BatchNorm1d(channels_out))
-                block.append(nn.GELU())
-
-                channels_in = channels_out
-
-            block.append(nn.MaxPool1d(2))
-
-            return nn.Sequential(*block)
 
         self.conv = nn.Sequential(
             conv_block(4, 256, conv=RevCompConv1D),
@@ -49,14 +33,6 @@ class ResNet(nn.Module):
 class MyopicResNet(nn.Module):
     def __init__(self):
         super(MyopicResNet, self).__init__()
-
-        def conv_block(channels_in, channels_out, width=3, conv=nn.Conv1d):
-            return nn.Sequential(
-                conv(channels_in, channels_out, width, padding="same"),
-                nn.BatchNorm1d(channels_out),
-                nn.GELU(),
-                nn.MaxPool1d(2),
-            )
 
         self.conv = nn.Sequential(
             conv_block(4, 256, conv=RevCompConv1D),

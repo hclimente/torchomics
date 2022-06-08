@@ -4,6 +4,7 @@ from functools import reduce
 import numpy as np
 import scipy
 import torch
+import torch.nn as nn
 from torch.nn.init import constant_, normal_, xavier_uniform_
 
 
@@ -40,7 +41,7 @@ def numpify(x):
     return x.cpu().detach().float().numpy()
 
 
-class Residual(torch.nn.Module):
+class Residual(nn.Module):
     def __init__(self, module):
         super(Residual, self).__init__()
 
@@ -48,6 +49,25 @@ class Residual(torch.nn.Module):
 
     def forward(self, x):
         return x + self.module(x)
+
+
+def conv_block(
+    channels_in, channels_out, width=16, conv=nn.Conv1d, nb_repeats=3, dilation=1
+):
+    block = []
+
+    for _ in range(nb_repeats):
+        block.append(
+            conv(channels_in, channels_out, width, padding="same", dilation=dilation)
+        )
+        block.append(nn.BatchNorm1d(channels_out))
+        block.append(nn.GELU())
+
+        channels_in = channels_out
+
+    block.append(nn.MaxPool1d(2))
+
+    return nn.Sequential(*block)
 
 
 def count_params(net):
