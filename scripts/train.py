@@ -26,8 +26,6 @@ from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
 from data import DreamDM, save_preds
 
-pl.seed_everything(0)
-
 # + tags=[]
 # hyperparameters
 model_name = "SimpleCNN"
@@ -37,12 +35,9 @@ VAL_SIZE = 10000
 N_EPOCHS = 2
 
 # setup
-logs_path = here(f"results/models/{model_name}")
+all_logs = here("results/models/")
+logs_path = f"{all_logs}/{model_name}"
 Path(logs_path).mkdir(exist_ok=True)
-
-logger = TensorBoardLogger(save_dir=here("results/models/"), name=model_name)
-trainer = pl.Trainer(max_epochs=N_EPOCHS, callbacks=RichProgressBar(), logger=logger)
-dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator)
 
 
 # + tags=[]
@@ -71,8 +66,8 @@ class Model(ARCH):
         loss = self.loss(y_pred, y)
 
         self.log(f"{label} loss", loss)
-        self.log(f"{label} Pearson", pearson_corrcoef(y, y_pred))
-        self.log(f"{label} Spearman", spearman_corrcoef(y, y_pred))
+        self.log(f"{label} Pearson", pearson_corrcoef(y, y_pred.float()))
+        self.log(f"{label} Spearman", spearman_corrcoef(y, y_pred.float()))
 
         return loss
 
@@ -83,17 +78,30 @@ class Model(ARCH):
 
 
 # + tags=[]
-# training
-model = Model()
-trainer.fit(model, dm)
+if __name__ == "__main__":
+    # setup
+    pl.seed_everything(0, workers=True)
+    logger = TensorBoardLogger(save_dir=here("results/models/"), name=model_name)
+    trainer = pl.Trainer(
+        max_epochs=N_EPOCHS,
+        callbacks=RichProgressBar(),
+        logger=logger,
+        gpus=-1,
+        precision=16,
+        deterministic=True,
+    )
+    dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator)
 
-# predictions
-preds = trainer.predict(ckpt_path="best", datamodule=dm)
-preds = torch.cat(preds)
-save_preds(preds, here("data/dream/test_sequences.txt"), logger.log_dir)
+    # training
+    model = Model()
+    trainer.fit(model, dm)
 
-# + tags=[]
+    # predictions
+    preds = trainer.predict(ckpt_path="best", datamodule=dm)
+    preds = torch.cat(preds)
+    save_preds(preds, here("data/dream/test_sequences.txt"), logger.log_dir)
+# -
+
 # examine model
-logs = here("results/models/")
 # %reload_ext tensorboard
-# %tensorboard --logdir=$logs
+# %tensorboard --logdir=$all_logs

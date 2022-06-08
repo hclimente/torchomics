@@ -55,7 +55,11 @@ class DreamDM(pl.LightningDataModule):
             if accelerator != "cpu":
                 self.dev_machine = False
 
-        self.params = {"batch_size": batch_size, "num_workers": int(os.cpu_count() / 2)}
+        self.params = {
+            "batch_size": batch_size,
+            "num_workers": int(os.cpu_count() / 5),
+            "persistent_workers": True,
+        }
 
     def setup(self, stage: Optional[str] = None):
 
