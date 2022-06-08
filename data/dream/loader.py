@@ -57,7 +57,7 @@ class DreamDM(pl.LightningDataModule):
 
         self.params = {
             "batch_size": batch_size,
-            "num_workers": int(os.cpu_count() / 5),
+            "num_workers": int(os.cpu_count() / 2),
             "persistent_workers": True,
         }
 

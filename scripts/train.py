@@ -86,7 +86,7 @@ if __name__ == "__main__":
         max_epochs=N_EPOCHS,
         callbacks=RichProgressBar(),
         logger=logger,
-        gpus=-1,
+        # gpus=-1,
         precision=16,
         deterministic=True,
     )

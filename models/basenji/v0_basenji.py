@@ -1,9 +1,10 @@
+import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.utils import Residual
 
 
-class Basenji(nn.Module):
+class Basenji(pl.LightningModule):
     def __init__(self):
         super(Basenji, self).__init__()
 
