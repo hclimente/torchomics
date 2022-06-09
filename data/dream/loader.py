@@ -57,7 +57,8 @@ class DreamDM(pl.LightningDataModule):
 
         self.params = {
             "batch_size": batch_size,
-            "num_workers": int(os.cpu_count() / 2),
+            # NOTE most multiproc errors happen when num_workers is too large
+            "num_workers": int(os.cpu_count() / 4),
             "persistent_workers": True,
         }
 
