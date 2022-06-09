@@ -1,13 +1,13 @@
 biopython
-papermill
 pyprojroot
-umap-learn
 ipython
 ipywidgets
 jupyterlab
+jupytext
 pytest
 gitpython
 pandas
+pytorch-lightning
 scikit-learn
 scikit-learn-intelex
 seaborn
