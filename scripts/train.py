@@ -20,7 +20,7 @@ from pathlib import Path
 import pytorch_lightning as pl
 import torch
 from pyprojroot import here
-from pytorch_lightning.callbacks import RichProgressBar
+from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
@@ -28,11 +28,11 @@ from data import DreamDM, save_preds
 
 # + tags=[]
 # hyperparameters
-model_name = "SimpleCNN"
+model_name = "Basenji"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
-N_EPOCHS = 2
+N_EPOCHS = 30
 
 # setup
 all_logs = here("results/models/")
@@ -82,11 +82,18 @@ if __name__ == "__main__":
     # setup
     pl.seed_everything(0, workers=True)
     logger = TensorBoardLogger(save_dir=here("results/models/"), name=model_name)
+    checkpoint_callback = ModelCheckpoint(
+        monitor="Validation loss",
+        mode="min",
+        save_top_k=1,
+        save_last=True,
+    )
     trainer = pl.Trainer(
         max_epochs=N_EPOCHS,
-        callbacks=RichProgressBar(),
+        callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
-        # gpus=-1,
+        gpus=-1,  # NOTE comment out in dev machines
+        # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
         precision=16,
         deterministic=True,
     )
@@ -97,6 +104,7 @@ if __name__ == "__main__":
     trainer.fit(model, dm)
 
     # predictions
+    # FIXME does not work on multi-GPU envs
     preds = trainer.predict(ckpt_path="best", datamodule=dm)
     preds = torch.cat(preds)
     save_preds(preds, here("data/dream/test_sequences.txt"), logger.log_dir)
