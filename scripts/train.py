@@ -105,8 +105,8 @@ if __name__ == "__main__":
 
     # predictions
     # FIXME does not work on multi-GPU envs
-    preds = trainer.predict(ckpt_path="best", datamodule=dm)
-    preds = torch.cat(preds)
+    best_model = model.load_from_checkpoint(checkpoint_callback.best_model_path)
+    preds = best_model(dm.pred).flatten().detach()
     save_preds(preds, here("data/dream/test_sequences.txt"), logger.log_dir)
 # -
 
