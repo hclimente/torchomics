@@ -1,9 +1,10 @@
+import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.layers import RevCompConv1D
 
 
-class SimpleCNN(nn.Module):
+class SimpleCNN(pl.LightningModule):
     def __init__(self):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Sequential(
@@ -30,7 +31,7 @@ class SimpleCNN(nn.Module):
         return x
 
 
-class SimpleCNN_BN(nn.Module):
+class SimpleCNN_BN(pl.LightningModule):
     def __init__(self):
         super(SimpleCNN_BN, self).__init__()
 
@@ -62,7 +63,7 @@ class SimpleCNN_BN(nn.Module):
         return x
 
 
-class SimpleCNN_GELU(nn.Module):
+class SimpleCNN_GELU(pl.LightningModule):
     def __init__(self):
         super(SimpleCNN_GELU, self).__init__()
 
@@ -93,7 +94,7 @@ class SimpleCNN_GELU(nn.Module):
         return x
 
 
-class DeepCNN(nn.Module):
+class DeepCNN(pl.LightningModule):
     def __init__(self):
         super(DeepCNN, self).__init__()
 
@@ -130,7 +131,7 @@ class DeepCNN(nn.Module):
         return x
 
 
-class SimpleCNN_RC(nn.Module):
+class SimpleCNN_RC(pl.LightningModule):
     def __init__(self):
         super(SimpleCNN_RC, self).__init__()
         self.conv = nn.Sequential(

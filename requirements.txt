@@ -5,6 +5,7 @@ ipywidgets
 jupyterlab
 jupytext
 pytest
+pytorch_lightning
 gitpython
 pandas
 pytorch-lightning
