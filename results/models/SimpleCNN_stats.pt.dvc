@@ -1,4 +1,0 @@
-outs:
-- md5: 52b04a25928316a976997eff94c388d6
-  size: 592367
-  path: SimpleCNN_stats.pt

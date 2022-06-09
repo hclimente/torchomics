@@ -1,6 +1,7 @@
 ./data/
 work/
 env/
+results/models/
 
 ### Data files
 *.pt
