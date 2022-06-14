@@ -2,8 +2,7 @@ from ._version import __version__
 from .basenji import Basenji
 from .simple_cnn import (
     DeepCNN,
-    MyopicResNet,
-    ResNet,
+    ResNet50,
     SimpleCNN,
     SimpleCNN_BN,
     SimpleCNN_GELU,
@@ -21,8 +20,7 @@ __all__ = [
     "SimpleCNN_GELU",
     "DeepCNN",
     "SimpleCNN_RC",
-    "ResNet",
-    "MyopicResNet",
+    "ResNet50",
     "RNN",
     "Basenji",
     "fix_seeds",
