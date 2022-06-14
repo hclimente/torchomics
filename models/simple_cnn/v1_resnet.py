@@ -11,6 +11,7 @@ class Bottleneck(nn.Module):
         channels_bn,
         channels_out,
         stride,
+        groups,
         downsample=None,
     ):
         super(Bottleneck, self).__init__()
@@ -22,7 +23,13 @@ class Bottleneck(nn.Module):
             nn.BatchNorm1d(channels_bn),
             nn.ReLU(),
             nn.Conv1d(
-                channels_bn, channels_bn, 3, padding=1, bias=False, stride=stride
+                channels_bn,
+                channels_bn,
+                3,
+                padding=1,
+                bias=False,
+                stride=stride,
+                groups=groups,
             ),
             nn.BatchNorm1d(channels_bn),
             nn.ReLU(),
@@ -39,8 +46,45 @@ class Bottleneck(nn.Module):
         return x
 
 
+class ConvNeXtBottleneck(nn.Module):
+    def __init__(
+        self,
+        channels_in,
+        channels_bn,
+        channels_out,
+        stride,
+        groups,
+        downsample=None,
+    ):
+        super(ConvNeXtBottleneck, self).__init__()
+
+        self.downsample = downsample
+
+        self.bottleneck = nn.Sequential(
+            nn.Conv1d(channels_in, channels_in, 7, bias=False, groups=channels_in),
+            nn.LayerNorm1d(channels_in),
+            nn.Conv1d(
+                4 * channels_in,
+                4 * channels_in,
+                1,
+                padding=1,
+                bias=False,
+                stride=stride,
+            ),
+            nn.GELU(),
+            nn.Conv1d(4 * channels_in, channels_out, 1, bias=False),
+        )
+
+    def forward(self, x):
+
+        identity = x if self.downsample is None else self.downsample(x)
+        x = identity + self.bottleneck(x)
+
+        return x
+
+
 class ResNet(pl.LightningModule):
-    def __init__(self, layers):
+    def __init__(self, layers, block, groups=1):
         super(ResNet, self).__init__()
 
         self.channels_in = 64
@@ -52,10 +96,18 @@ class ResNet(pl.LightningModule):
             nn.MaxPool1d(2),
         )
 
-        self.layer1 = self._make_layer(layers[0], 64, 64, stride=1)
-        self.layer2 = self._make_layer(layers[1], 128, 256, stride=2)
-        self.layer3 = self._make_layer(layers[2], 256, 1024, stride=2)
-        self.layer4 = self._make_layer(layers[3], 512, 2048, stride=2)
+        self.layer1 = self._make_layer(
+            layers[0], block, 64, 64, stride=1, groups=groups
+        )
+        self.layer2 = self._make_layer(
+            layers[1], block, 128, 256, stride=2, groups=groups
+        )
+        self.layer3 = self._make_layer(
+            layers[2], block, 256, 1024, stride=2, groups=groups
+        )
+        self.layer4 = self._make_layer(
+            layers[3], block, 512, 2048, stride=2, groups=groups
+        )
         self.avg_pool = nn.AdaptiveAvgPool1d(2048)
 
         self.fc = nn.Linear(2048, 1)
@@ -71,7 +123,7 @@ class ResNet(pl.LightningModule):
         x = self.fc(x)
         return x
 
-    def _make_layer(self, nb_repeats, channels_bn, channels_out, stride=1):
+    def _make_layer(self, block, nb_repeats, channels_bn, channels_out, stride=1):
 
         downsample = None
         layers = []
@@ -84,9 +136,7 @@ class ResNet(pl.LightningModule):
 
         for _ in range(nb_repeats):
             layers.append(
-                Bottleneck(
-                    self.channels_in, channels_bn, channels_out, stride, downsample
-                )
+                block(self.channels_in, channels_bn, channels_out, stride, downsample)
             )
 
         self.channels_in = channels_out
@@ -94,5 +144,25 @@ class ResNet(pl.LightningModule):
         return nn.Sequential(*layers)
 
 
+def ResNet18():
+    return ResNet([2, 2, 2, 2], Bottleneck)
+
+
 def ResNet50():
-    return ResNet([3, 4, 6, 3])
+    return ResNet([3, 4, 6, 3], Bottleneck)
+
+
+def ResNeXt18():
+    return ResNet([2, 2, 2, 2], Bottleneck, groups=32)
+
+
+def ResNeXt50():
+    return ResNet([3, 4, 6, 3], Bottleneck, groups=32)
+
+
+def ConvNeXt18():
+    return ResNet([2, 2, 2, 2], ConvNeXtBottleneck, groups=32)
+
+
+def ConvNeXt50():
+    return ResNet([3, 4, 6, 3], ConvNeXtBottleneck, groups=32)
