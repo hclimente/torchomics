@@ -204,21 +204,26 @@ class ResNet(pl.LightningModule):
         return nn.Sequential(*layers)
 
 
-def ResNet18():
-    return ResNet([2, 2, 2, 2], BasicBlock)
+class ResNet18(ResNet):
+    def __init__(self):
+        super().__init__([2, 2, 2, 2], Bottleneck)
 
 
-def ResNet50():
-    return ResNet([3, 4, 6, 3], Bottleneck)
+class ResNet50(ResNet):
+    def __init__(self):
+        super().__init__([3, 4, 6, 3], Bottleneck)
 
 
-def ResNeXt18():
-    return ResNet([2, 2, 2, 2], BasicBlock, groups=32)
+class ResNeXt18(ResNet):
+    def __init__(self):
+        super().__init__([2, 2, 2, 2], BasicBlock, groups=32)
 
 
-def ResNeXt50():
-    return ResNet([3, 4, 6, 3], Bottleneck, groups=32)
+class ResNeXt50(ResNet):
+    def __init__(self):
+        super().__init__([3, 4, 6, 3], BasicBlock, groups=32)
 
 
-def ConvNeXt50():
-    return ResNet([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=96)
+class ConvNeXt50(ResNet):
+    def __init__(self):
+        super().__init__([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=96)
