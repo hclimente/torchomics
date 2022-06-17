@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytorch_lightning as pl
 import torch
+from git import Repo
 from pyprojroot import here
 from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -58,6 +59,13 @@ class Model(ARCH):
 
     def testing_step(self, batch, batch_idx):
         return self.step(batch, batch_idx, "Test")
+
+    def on_train_start(self):
+        repo = Repo(search_parent_directories=True)
+
+        self.logger.log_hyperparams(
+            {"sha": repo.head.object.hexsha, "batch_size": BATCH_SIZE}
+        )
 
     def step(self, batch, batch_idx, label):
 
@@ -108,8 +116,8 @@ if __name__ == "__main__":
     best_model = model.load_from_checkpoint(checkpoint_callback.best_model_path)
     preds = best_model(dm.pred).flatten().detach()
     save_preds(preds, here("data/dream/test_sequences.txt"), logger.log_dir)
-# -
 
+# + tags=[]
 # examine model
 # %reload_ext tensorboard
 # %tensorboard --logdir=$all_logs
