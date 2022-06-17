@@ -29,7 +29,7 @@ from data import DreamDM, save_preds
 
 # + tags=[]
 # hyperparameters
-model_name = "ResNet18"
+model_name = "ResNetWannabe"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
