@@ -9,7 +9,7 @@ dependencies:
   - biopython
   - pyprojroot
   - pytorch
-  - pytorch_lightning
+  - pytorch-lightning
   - jupytext
   - torchvision
   - umap-learn

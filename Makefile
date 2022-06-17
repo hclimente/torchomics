@@ -40,6 +40,15 @@ jupyter_server:
 jupyter_client:
 	ssh -N -L localhost:8080:localhost:8080 $(SERVER)
 
+tensorboard_server:
+	$(CONDA_ACTIVATE); tensorboard --logdir results/models/
+
+tensorboard_client:
+	ssh -N -L localhost:6006:localhost:6006 $(SERVER)
+
+train:
+	$(CONDA_ACTIVATE); unalias python; export CUDA_VISIBLE_DEVICES=2,3,4,5; python scripts/train.py
+
 clean:
 	rm -rf env/
 
