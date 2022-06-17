@@ -10,10 +10,10 @@ class ResNetWannabe(pl.LightningModule):
         super(ResNetWannabe, self).__init__()
 
         self.conv = nn.Sequential(
-            conv_block(4, 256, 15, conv=RevCompConv1D),
-            ResidualWannabe(conv_block(256, 256, 15)),
-            ResidualWannabe(conv_block(256, 256, 15)),
-            ResidualWannabe(conv_block(256, 256, 15)),
+            conv_block(4, 256, 7, conv=RevCompConv1D),
+            ResidualWannabe(conv_block(256, 256, 7)),
+            ResidualWannabe(conv_block(256, 256, 7)),
+            ResidualWannabe(conv_block(256, 256, 7)),
         )
 
         self.fc = nn.Sequential(
