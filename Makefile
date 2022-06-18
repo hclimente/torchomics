@@ -47,7 +47,7 @@ tensorboard_client:
 	ssh -N -L localhost:6006:localhost:6006 $(SERVER)
 
 train:
-	$(CONDA_ACTIVATE); unalias python; export CUDA_VISIBLE_DEVICES=2,3,4,5; python scripts/train.py
+	$(CONDA_ACTIVATE); unalias python; export CUDA_VISIBLE_DEVICES=2,3,4,5,6,7; python scripts/train.py
 
 clean:
 	rm -rf env/
