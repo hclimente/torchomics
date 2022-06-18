@@ -4,9 +4,9 @@ import torch.nn as nn
 from models.utils import conv_block
 
 
-class ResNetWannabe(pl.LightningModule):
+class Wannabe(pl.LightningModule):
     def __init__(self, nb_outputs=1):
-        super(ResNetWannabe, self).__init__()
+        super(Wannabe, self).__init__()
 
         self.conv = nn.Sequential(
             conv_block(4, 256, 7),
