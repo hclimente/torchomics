@@ -1,7 +1,6 @@
 import pytorch_lightning as pl
 import torch.nn as nn
 
-from models.layers import RevCompConv1D
 from models.utils import conv_block
 
 
@@ -10,7 +9,7 @@ class ResNetWannabe(pl.LightningModule):
         super(ResNetWannabe, self).__init__()
 
         self.conv = nn.Sequential(
-            conv_block(4, 256, 7, conv=RevCompConv1D),
+            conv_block(4, 256, 7),
             ResidualWannabe(conv_block(256, 256, 7)),
             ResidualWannabe(conv_block(256, 256, 7)),
             ResidualWannabe(conv_block(256, 256, 7)),
