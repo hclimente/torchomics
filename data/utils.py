@@ -1,9 +1,13 @@
+import json
+from collections import OrderedDict
 from os.path import isfile
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import torch
+
+from models.utils import numpify
 
 
 def pad(seq, expected):
@@ -39,7 +43,7 @@ def load(table, cached, obj, path="data/dream", sep="\t"):
     return ds
 
 
-def save_preds(preds, sequences_txt, save_path):
+def save_preds2(preds, sequences_txt, save_path):
 
     sequences = pd.read_csv(
         sequences_txt,
@@ -54,6 +58,23 @@ def save_preds(preds, sequences_txt, save_path):
         index=False,
         sep="\t",
     )
+
+
+def save_preds(preds, save_path, sample_json="data/dream/predictions.json"):
+
+    preds = numpify(preds)
+
+    with open(sample_json, "r") as f:
+        ground = json.load(f)
+    indices = np.array([int(indice) for indice in list(ground.keys())])
+    PRED_DATA = OrderedDict()
+    for i in indices:
+        # Y_pred is an numpy array of dimension (71103,) that contains your
+        # predictions on the test sequences
+        PRED_DATA[str(i)] = float(preds[i])
+
+    with open(f"{save_path}/predictions.json", "w") as f:
+        json.dump(PRED_DATA, f)
 
 
 def one_hot_encode(
