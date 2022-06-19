@@ -5,22 +5,25 @@ from models.utils import conv_block
 
 
 class Wannabe(pl.LightningModule):
-    def __init__(self, nb_outputs=1):
+    def __init__(self):
         super(Wannabe, self).__init__()
+        kernel_size = 7
 
         self.conv = nn.Sequential(
-            conv_block(4, 256, 7),
-            ResidualWannabe(conv_block(256, 256, 7)),
-            ResidualWannabe(conv_block(256, 256, 7)),
-            ResidualWannabe(conv_block(256, 256, 7)),
+            conv_block(4, 256, kernel_size),
+            ResidualWannabe(conv_block(256, 256, kernel_size)),
+            ResidualWannabe(conv_block(256, 256, kernel_size)),
+            ResidualWannabe(conv_block(256, 256, kernel_size)),
         )
 
         self.fc = nn.Sequential(
             nn.Linear(256 * 5, 128),
+            nn.Dropout(0.1),
             nn.ReLU(),
             nn.Linear(128, 64),
+            nn.Dropout(0.1),
             nn.ReLU(),
-            nn.Linear(64, nb_outputs),
+            nn.Linear(64, 1),
         )
 
     def forward(self, x, rc=None):
