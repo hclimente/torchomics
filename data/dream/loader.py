@@ -1,8 +1,10 @@
 import os
+import random
 from typing import Optional
 
 import pytorch_lightning as pl
 import torch
+from torch.distributions.beta import Beta
 from torch.utils.data import DataLoader, Dataset
 
 from data.utils import load
@@ -10,28 +12,49 @@ from data.utils import load
 
 class Dream(Dataset):
     def __init__(
-        self, sequences: torch.Tensor, expression: torch.Tensor, transforms=None
+        self, sequences: torch.Tensor, expression: torch.Tensor, transforms=[]
     ):
 
         self.sequences = sequences
         self.expression = expression.float()
         self.transforms = transforms
 
+        # beta distribution to sample mixup probabilities
+        alpha = 0.2
+        self.beta = Beta(alpha, alpha)
+
     def __len__(self):
         return len(self.expression)
 
-    def __getitem__(self, index):
-        seq = self.sequences[index, :]
-        rc = self.rc_sequences[index, :]
-        expression = self.expression[index, None]
+    def __getitem__(self, idx):
+        seq = self.sequences[idx, :]
+        rc = self.rc_sequences[idx, :]
+        expression = self.expression[idx, None]
 
         if self.transforms:
-            seq = self.transforms(seq)
+            seq, rc, expression = self.apply_transforms(idx, seq, rc, expression)
 
         return seq, rc, expression
 
     def cache_rc(self):
         self.rc_sequences = self.sequences.flip(1, 2)
+
+    def apply_transforms(self, idx, seq, rc, expression):
+
+        if "mixup" in self.transforms and idx % 5 == 0:
+            # randomly select another sequence
+            mixup_idx = random.randint(0, len(self) - 1)
+            mixup_seq = self.sequences[mixup_idx]
+            mixup_rc = self.rc_sequences[mixup_idx]
+            mixup_expression = self.expression[mixup_idx]
+
+            # sample a probability and mixup the sequences accordingly
+            p = self.beta.sample()
+            seq = p * seq + (1 - p) * mixup_seq
+            rc = p * rc + (1 - p) * mixup_rc
+            expression = p * expression + (1 - p) * mixup_expression
+
+        return seq, rc, expression
 
 
 class DreamDM(pl.LightningDataModule):
@@ -66,21 +89,36 @@ class DreamDM(pl.LightningDataModule):
 
         tr_cached = "train_dev.pt" if self.dev_machine else "train.pt"
         tr = load("train_sequences.txt", tr_cached, Dream, path=self.data_dir)
-        tr.cache_rc()
+        tr = Dream(tr.sequences, tr.expression)
 
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]
         self.train, self.val, self.test = torch.utils.data.random_split(tr, lengths)
 
         self.pred = torch.load(f"{self.data_dir}/test_one_hot.pt")
 
+    def subset_data(self, subset, transforms=None):
+
+        dataset = subset.dataset
+
+        sequences = dataset.sequences[subset.indices]
+        expression = dataset.expression[subset.indices]
+
+        ds = Dream(sequences, expression, transforms=transforms)
+        ds.cache_rc()
+
+        return ds
+
     def train_dataloader(self):
-        return DataLoader(self.train, shuffle=True, drop_last=True, **self.params)
+        ds = self.subset_data(self.train, ["mixup"])
+        return DataLoader(ds, shuffle=True, drop_last=True, **self.params)
 
     def val_dataloader(self):
-        return DataLoader(self.val, **self.params)
+        ds = self.subset_data(self.val)
+        return DataLoader(ds, **self.params)
 
     def test_dataloader(self):
-        return DataLoader(self.test, **self.params)
+        ds = self.subset_data(self.test)
+        return DataLoader(ds, **self.params)
 
     def predict_dataloader(self):
         return DataLoader(self.pred, **self.params)

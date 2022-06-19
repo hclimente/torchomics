@@ -29,7 +29,7 @@ from data import DreamDM, save_preds
 
 # + tags=[]
 # hyperparameters
-model_name = "Basenji"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         max_epochs=N_EPOCHS,
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
-        gpus=-1,  # NOTE comment out in dev machines
+        # gpus=-1,  # NOTE comment out in dev machines
         # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
         precision=16,
         deterministic=True,
