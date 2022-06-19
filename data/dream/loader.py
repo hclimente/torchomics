@@ -94,7 +94,8 @@ class DreamDM(pl.LightningDataModule):
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]
         self.train, self.val, self.test = torch.utils.data.random_split(tr, lengths)
 
-        self.pred = torch.load(f"{self.data_dir}/test_one_hot.pt")
+        self.pred = torch.load(f"{self.data_dir}/test.pt")
+        self.pred.cache_rc()
 
     def subset_data(self, subset, transforms=None):
 

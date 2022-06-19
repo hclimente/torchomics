@@ -1,19 +1,18 @@
 import pytorch_lightning as pl
 import torch.nn as nn
 
-from models.layers import RevCompConv1D
 from models.utils import conv_block
 
 
-class ResNetWannabe(pl.LightningModule):
+class Wannabe(pl.LightningModule):
     def __init__(self, nb_outputs=1):
-        super(ResNetWannabe, self).__init__()
+        super(Wannabe, self).__init__()
 
         self.conv = nn.Sequential(
-            conv_block(4, 256, conv=RevCompConv1D),
-            ResidualWannabe(conv_block(256, 256, 8)),
-            ResidualWannabe(conv_block(256, 256, 8)),
-            ResidualWannabe(conv_block(256, 256, 8)),
+            conv_block(4, 256, 7),
+            ResidualWannabe(conv_block(256, 256, 7)),
+            ResidualWannabe(conv_block(256, 256, 7)),
+            ResidualWannabe(conv_block(256, 256, 7)),
         )
 
         self.fc = nn.Sequential(

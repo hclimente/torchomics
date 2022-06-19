@@ -29,11 +29,11 @@ from data import DreamDM, save_preds
 
 # + tags=[]
 # hyperparameters
-model_name = "SimpleCNN"
+model_name = "Wannabe"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
-N_EPOCHS = 30
+N_EPOCHS = 20
 
 # setup
 all_logs = here("results/models/")
@@ -51,21 +51,25 @@ class Model(ARCH):
         optimizer = torch.optim.Adam(self.parameters(), lr=3e-4)
         return optimizer
 
-    def training_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Train")
-
-    def validation_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Validation")
-
-    def testing_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Test")
-
     def on_train_start(self):
         repo = Repo(search_parent_directories=True)
 
         self.logger.log_hyperparams(
             {"sha": repo.head.object.hexsha, "batch_size": BATCH_SIZE}
         )
+
+    def training_step(self, batch, batch_idx):
+        return self.step(batch, batch_idx, "Train")
+
+    def validation_step(self, batch, batch_idx):
+        return self.step(batch, batch_idx, "Validation")
+
+    def test_step(self, batch, batch_idx):
+        return self.step(batch, batch_idx, "Test")
+
+    def predict_step(self, batch, batch_idx, dataloader_idx=0):
+        seq, rc, _ = batch
+        return self(seq, rc)
 
     def step(self, batch, batch_idx, label):
 
@@ -87,6 +91,7 @@ class Model(ARCH):
 
 # + tags=[]
 if __name__ == "__main__":
+
     # setup
     pl.seed_everything(0, workers=True)
     logger = TensorBoardLogger(save_dir=here("results/models/"), name=model_name)
@@ -100,7 +105,9 @@ if __name__ == "__main__":
         max_epochs=N_EPOCHS,
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
-        # gpus=-1,  # NOTE comment out in dev machines
+        # NOTE comment out next two lines in dev machines
+        gpus=-1,
+        strategy="ddp_find_unused_parameters_false",
         # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
         precision=16,
         deterministic=True,
@@ -112,10 +119,24 @@ if __name__ == "__main__":
     trainer.fit(model, dm)
 
     # predictions
-    # FIXME does not work on multi-GPU envs
-    best_model = model.load_from_checkpoint(checkpoint_callback.best_model_path)
-    preds = best_model(dm.pred)
-    save_preds(preds, logger.log_dir, here("data/dream/sample_submission.json"))
+    # On a single GPU: https://github.com/Lightning-AI/lightning/issues/8375
+    torch.distributed.destroy_process_group()
+    if trainer.global_rank == 0:
+        trainer = pl.Trainer(
+            callbacks=[checkpoint_callback, RichProgressBar()],
+            logger=logger,
+            accelerator="gpu",
+            devices=1,
+            max_epochs=1,
+        )
+        model = Model.load_from_checkpoint(checkpoint_callback.best_model_path)
+        trainer.test(model, datamodule=dm)
+        preds = trainer.predict(model, datamodule=dm)
+        save_preds(
+            torch.vstack(preds),
+            logger.log_dir,
+            here("data/dream/sample_submission.json"),
+        )
 
 # + tags=[]
 # examine model

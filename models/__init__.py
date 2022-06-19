@@ -5,13 +5,13 @@ from .simple_cnn import (
     DeepCNN,
     ResNet18,
     ResNet50,
-    ResNetWannabe,
     ResNeXt18,
     ResNeXt50,
     SimpleCNN,
     SimpleCNN_BN,
     SimpleCNN_GELU,
     SimpleCNN_RC,
+    Wannabe,
 )
 from .transformer_cnn import RNN
 from .utils import fix_seeds
@@ -30,7 +30,7 @@ __all__ = [
     "ResNeXt18",
     "ResNeXt50",
     "ConvNeXt50",
-    "ResNetWannabe",
+    "Wannabe",
     "RNN",
     "Basenji",
     "fix_seeds",
