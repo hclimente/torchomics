@@ -13,7 +13,7 @@ from .simple_cnn import (
     SimpleCNN_RC,
     Wannabe,
 )
-from .transformer_cnn import RNN
+from .simple_rnn import SimpleLSTM
 from .utils import fix_seeds
 from .vaishnav import OneStrandCNN, VaishnavCNN
 
@@ -31,7 +31,7 @@ __all__ = [
     "ResNeXt50",
     "ConvNeXt50",
     "Wannabe",
-    "RNN",
+    "SimpleLSTM",
     "Basenji",
     "fix_seeds",
 ]
