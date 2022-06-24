@@ -48,7 +48,7 @@ class Model(ARCH):
         self.loss = torch.nn.MSELoss()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=3e-4)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
         return optimizer
 
     def on_train_start(self):
