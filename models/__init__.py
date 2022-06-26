@@ -14,6 +14,7 @@ from .simple_cnn import (
     Wannabe,
 )
 from .simple_rnn import DeepLSTM, SimpleLSTM
+from .simple_transformer import Transformer
 from .utils import fix_seeds
 from .vaishnav import OneStrandCNN, VaishnavCNN
 
@@ -34,5 +35,5 @@ __all__ = [
     "SimpleLSTM",
     "DeepLSTM",
     "Basenji",
-    "fix_seeds",
+    "Transformer" "fix_seeds",
 ]
