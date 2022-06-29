@@ -1,4 +1,7 @@
+import argparse
+import inspect
 import random
+import typing
 from functools import reduce
 
 import numpy as np
@@ -93,3 +96,18 @@ def init_weights(layer, init="glorot"):
     elif "BatchNorm" in layer_type:
         normal_(layer.weight.data, 1.0, 0.02)
         constant_(layer.bias.data, 0.0)
+
+
+def parser(model):
+
+    p = argparse.ArgumentParser()
+    model_args = inspect.getfullargspec(model)
+
+    argnames = model_args.args[1:]
+    defaults = model_args.defaults
+    types = typing.get_type_hints(model.__init__)
+
+    for arg, val in zip(argnames, defaults):
+        p.add_argument(f"-{arg}", default=val, type=types[arg])
+
+    return p

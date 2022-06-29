@@ -5,7 +5,7 @@ from models.utils import conv_block
 
 
 class Wannabe(pl.LightningModule):
-    def __init__(self, p_dropout=0.1):
+    def __init__(self, p_dropout: float = 0.1):
         super(Wannabe, self).__init__()
         kernel_size = 7
 

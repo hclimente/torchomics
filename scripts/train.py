@@ -14,8 +14,6 @@
 # ---
 
 # + tags=[]
-import argparse
-import inspect
 from importlib import import_module
 from pathlib import Path
 
@@ -28,6 +26,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
 from data import DreamDM, save_preds
+from models.utils import parser
 
 # + tags=[]
 # hyperparameters
@@ -41,12 +40,13 @@ N_EPOCHS = 20
 all_logs = here("results/models/")
 logs_path = f"{all_logs}/{model_name}"
 Path(logs_path).mkdir(exist_ok=True)
+args = vars(parser(ARCH).parse_args())
 
 
 # + tags=[]
 class Model(ARCH):
-    def __init__(self):
-        super(Model, self).__init__()
+    def __init__(self, **kwargs):
+        super(Model, self).__init__(**kwargs)
         self.loss = torch.nn.MSELoss()
 
     def configure_optimizers(self):
@@ -77,7 +77,7 @@ class Model(ARCH):
 
         seq, rc, y = batch
         y_pred = self(seq, rc)
-        loss = self.loss(y_pred, y)
+        loss = self.loss(y, y_pred)
 
         self.log(f"{label} loss", loss)
         self.log(f"{label} Pearson", pearson_corrcoef(y, y_pred.float()))
@@ -90,23 +90,9 @@ class Model(ARCH):
 
         return {"val_loss": avg_loss}
 
-    def parser(self):
-
-        parser = argparse.ArgumentParser()
-
-        argnames = inspect.getfullargspec(ARCH).args[1:]
-        defaults = inspect.getfullargspec(ARCH).defaults
-
-        for arg, val in zip(argnames, defaults):
-            parser.add_argument(str(arg), default=val)
-
-        return parser
-
 
 # + tags=[]
 if __name__ == "__main__":
-
-    args = Model().parser().parse_args()
 
     # setup
     pl.seed_everything(0, workers=True)
@@ -131,7 +117,7 @@ if __name__ == "__main__":
     dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator)
 
     # training
-    model = Model()
+    model = Model(**args)
     trainer.fit(model, dm)
 
     # predictions
