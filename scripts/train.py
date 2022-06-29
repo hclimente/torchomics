@@ -14,6 +14,8 @@
 # ---
 
 # + tags=[]
+import argparse
+import inspect
 from importlib import import_module
 from pathlib import Path
 
@@ -88,9 +90,23 @@ class Model(ARCH):
 
         return {"val_loss": avg_loss}
 
+    def parser(self):
+
+        parser = argparse.ArgumentParser()
+
+        argnames = inspect.getfullargspec(ARCH).args[1:]
+        defaults = inspect.getfullargspec(ARCH).defaults
+
+        for arg, val in zip(argnames, defaults):
+            parser.add_argument(str(arg), default=val)
+
+        return parser
+
 
 # + tags=[]
 if __name__ == "__main__":
+
+    args = Model().parser().parse_args()
 
     # setup
     pl.seed_everything(0, workers=True)

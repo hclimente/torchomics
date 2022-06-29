@@ -5,7 +5,7 @@ from models.utils import conv_block
 
 
 class Wannabe(pl.LightningModule):
-    def __init__(self):
+    def __init__(self, p_dropout=0.1):
         super(Wannabe, self).__init__()
         kernel_size = 7
 
@@ -18,10 +18,10 @@ class Wannabe(pl.LightningModule):
 
         self.fc = nn.Sequential(
             nn.Linear(256 * 5, 128),
-            nn.Dropout(0.1),
+            nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(128, 64),
-            nn.Dropout(0.1),
+            nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(64, 1),
         )
