@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class OneStrandCNN(pl.LightningModule):
-    def __init__(self, p_dropout=0.2):
+    def __init__(self, p_dropout: float = 0.2):
         super(OneStrandCNN, self).__init__()
 
         self.p_dropout = p_dropout

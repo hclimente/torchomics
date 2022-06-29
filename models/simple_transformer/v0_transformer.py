@@ -9,7 +9,14 @@ class Transformer(nn.Module):
 
     REG_TOKEN: int = 4
 
-    def __init__(self, n_layers=2, d_model=64, n_head=8, d_hidden=512, dropout=0.1):
+    def __init__(
+        self,
+        n_layers: int = 2,
+        d_model: int = 64,
+        n_head: int = 8,
+        d_hidden: int = 512,
+        p_dropout: float = 0.1,
+    ):
 
         """
         n_layers    - number of transformer modules
@@ -21,16 +28,16 @@ class Transformer(nn.Module):
         super(Transformer, self).__init__()
 
         self.encoder = nn.Embedding(self.REG_TOKEN + 1, d_model)
-        self.pos_encoder = PositionalEncoding(d_model, dropout)
+        self.pos_encoder = PositionalEncoding(d_model, p_dropout)
 
         encoder_layers = nn.TransformerEncoderLayer(
-            d_model, n_head, d_hidden, dropout, batch_first=True
+            d_model, n_head, d_hidden, p_dropout, batch_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layers, n_layers)
 
         self.d_model = d_model
         self.decoder = nn.Sequential(
-            nn.Dropout(p=dropout),
+            nn.Dropout(p=p_dropout),
             nn.Linear(d_model, d_model),
             nn.ReLU(inplace=True),
             nn.Linear(d_model, 1),
