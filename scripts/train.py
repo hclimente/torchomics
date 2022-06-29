@@ -13,6 +13,8 @@
 #     name: python3
 # ---
 
+import sys
+
 # + tags=[]
 from importlib import import_module
 from pathlib import Path
@@ -26,6 +28,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
 from data import DreamDM, save_preds
+from models.utils import parser
 
 # + tags=[]
 # hyperparameters
@@ -36,15 +39,22 @@ VAL_SIZE = 10000
 N_EPOCHS = 20
 
 # setup
+# create fake arguments if in interactive mode
+sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
+args = vars(parser(ARCH).parse_args(sys.argv[1:]))
+
+# prepare logs path
 all_logs = here("results/models/")
 logs_path = f"{all_logs}/{model_name}"
+for k, v in args.items():
+    logs_path += f"_{k}={v}"
 Path(logs_path).mkdir(exist_ok=True)
 
 
 # + tags=[]
 class Model(ARCH):
-    def __init__(self):
-        super(Model, self).__init__()
+    def __init__(self, **kwargs):
+        super(Model, self).__init__(**kwargs)
         self.loss = torch.nn.MSELoss()
 
     def configure_optimizers(self):
@@ -75,7 +85,7 @@ class Model(ARCH):
 
         seq, rc, y = batch
         y_pred = self(seq, rc)
-        loss = self.loss(y_pred, y)
+        loss = self.loss(y, y_pred)
 
         self.log(f"{label} loss", loss)
         self.log(f"{label} Pearson", pearson_corrcoef(y, y_pred.float()))
@@ -115,7 +125,7 @@ if __name__ == "__main__":
     dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator)
 
     # training
-    model = Model()
+    model = Model(**args)
     trainer.fit(model, dm)
 
     # predictions
