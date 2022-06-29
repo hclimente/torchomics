@@ -13,6 +13,8 @@
 #     name: python3
 # ---
 
+import sys
+
 # + tags=[]
 from importlib import import_module
 from pathlib import Path
@@ -37,10 +39,16 @@ VAL_SIZE = 10000
 N_EPOCHS = 20
 
 # setup
+# create fake arguments if in interactive mode
+sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
+args = vars(parser(ARCH).parse_args(sys.argv[1:]))
+
+# prepare logs path
 all_logs = here("results/models/")
 logs_path = f"{all_logs}/{model_name}"
+for k, v in args.items():
+    logs_path += f"_{k}={v}"
 Path(logs_path).mkdir(exist_ok=True)
-args = vars(parser(ARCH).parse_args())
 
 
 # + tags=[]
