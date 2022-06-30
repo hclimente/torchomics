@@ -116,8 +116,8 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
         # NOTE comment out next two lines in dev machines
-        # gpus=-1,
-        # strategy="ddp_find_unused_parameters_false",
+        gpus=-1,
+        strategy="ddp_find_unused_parameters_false",
         # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
         precision=16,
         deterministic=True,
