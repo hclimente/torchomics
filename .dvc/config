@@ -1,6 +1,2 @@
-[core]
-    analytics = false
-    autostage = true
-    remote = mydrive
-['remote "mydrive"']
+['remote "gdrive"']
     url = gdrive://1lJwjsWPKb6Bf8Wuz8saflOUUbCxN1Yr6
