@@ -32,23 +32,26 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "Wannabe"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
-N_EPOCHS = 20
+N_EPOCHS = 2
 
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
 args = vars(parser(ARCH).parse_args(sys.argv[1:]))
+seed = args.pop("seed")
 
 # prepare logs path
-all_logs = here("results/models/")
+logs_path = f"{here('results/models/')}/{model_name}/"
+
+sha = Repo(search_parent_directories=True).head.object.hexsha
+version = sha[:5]
 for k, v in args.items():
-    model_name += f"-{k}={v}"
-logs_path = f"{all_logs}/{model_name}"
-Path(logs_path).mkdir(exist_ok=True)
+    version += f"-{k}={v}"
+Path(f"{logs_path}/{version}/seed_{seed}").mkdir(parents=True, exist_ok=True)
 
 
 # + tags=[]
@@ -57,26 +60,30 @@ class Model(ARCH):
         super(Model, self).__init__(**kwargs)
         self.loss = torch.nn.MSELoss()
 
-
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
         return optimizer
 
     def on_train_start(self):
         # store hyperparameters
-        repo = Repo(search_parent_directories=True)
-        hparams = {"sha": repo.head.object.hexsha, "batch_size": BATCH_SIZE, **args}
+        hparams = {
+            "model": model_name,
+            "sha": sha,
+            "seed": seed,
+            "batch_size": BATCH_SIZE,
+            **args,
+        }
 
         self.logger.log_hyperparams(hparams)
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Train")
+        return self.step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Validation")
+        return self.step(batch, batch_idx, "val")
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "Test")
+        return self.step(batch, batch_idx, "test")
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         seq, rc, _ = batch
@@ -88,9 +95,9 @@ class Model(ARCH):
         y_pred = self(seq, rc)
         loss = self.loss(y, y_pred)
 
-        self.log(f"{label} loss", loss)
-        self.log(f"{label} Pearson", pearson_corrcoef(y, y_pred.float()))
-        self.log(f"{label} Spearman", spearman_corrcoef(y, y_pred.float()))
+        self.log(f"{label}/loss", loss)
+        self.log(f"{label}/pearson", pearson_corrcoef(y, y_pred.float()))
+        self.log(f"{label}/spearman", spearman_corrcoef(y, y_pred.float()))
 
         return loss
 
@@ -104,10 +111,15 @@ class Model(ARCH):
 if __name__ == "__main__":
 
     # setup
-    pl.seed_everything(0, workers=True)
-    logger = TensorBoardLogger(save_dir=here("results/models/"), name=model_name)
+    pl.seed_everything(seed, workers=True)
+    logger = TensorBoardLogger(
+        save_dir=logs_path,
+        name=version,
+        version=f"seed_{seed}",
+        default_hp_metric=False,
+    )
     checkpoint_callback = ModelCheckpoint(
-        monitor="Validation loss",
+        monitor="val/loss",
         mode="min",
         save_top_k=1,
         save_last=True,
@@ -148,8 +160,3 @@ if __name__ == "__main__":
             logger.log_dir,
             here("data/dream/sample_submission.json"),
         )
-
-# + tags=[]
-# examine model
-# %reload_ext tensorboard
-# %tensorboard --logdir=$all_logs

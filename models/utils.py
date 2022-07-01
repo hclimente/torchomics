@@ -101,10 +101,13 @@ def init_weights(layer, init="glorot"):
 def parser(model):
 
     p = argparse.ArgumentParser()
+    p.add_argument("-seed", default=0, type=int)
+
+    # get other arguments from the signature
     model_args = inspect.getfullargspec(model)
 
     argnames = model_args.args[1:]
-    defaults = model_args.defaults
+    defaults = model_args.defaults if argnames else []
     types = typing.get_type_hints(model.__init__)
 
     for arg, val in zip(argnames, defaults):
