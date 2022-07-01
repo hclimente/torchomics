@@ -1,5 +1,0 @@
-outs:
-- md5: 0e30990c8149ac53e20e80cfc593613c.dir
-  size: 324572
-  nfiles: 4
-  path: Wannabe-p_dropout=0.0-kernel_size=7-nb_repeats=6
