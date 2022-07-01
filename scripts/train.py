@@ -51,7 +51,7 @@ sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
 for k, v in args.items():
     version += f"-{k}={v}"
-Path(f"{logs_path}/{version}/seed_{seed}").mkdir(parents=True, exist_ok=True)
+Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
 
 # + tags=[]
@@ -59,6 +59,7 @@ class Model(ARCH):
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
         self.loss = torch.nn.MSELoss()
+        self.example_input_array = torch.rand((1, 4, 80))
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
@@ -74,7 +75,7 @@ class Model(ARCH):
             **args,
         }
 
-        self.logger.log_hyperparams(hparams)
+        self.logger.log_hyperparams(hparams, {"test/pearson": 0, "test/spearman": 0})
 
     def training_step(self, batch, batch_idx):
         return self.step(batch, batch_idx, "train")
@@ -104,7 +105,7 @@ class Model(ARCH):
     def validation_epoch_end(self, val_step_outputs):
         avg_loss = torch.Tensor(val_step_outputs).mean()
 
-        return {"val_loss": avg_loss}
+        return {"val/loss": avg_loss}
 
 
 # + tags=[]
@@ -115,7 +116,7 @@ if __name__ == "__main__":
     logger = TensorBoardLogger(
         save_dir=logs_path,
         name=version,
-        version=f"seed_{seed}",
+        version=seed,
         default_hp_metric=False,
     )
     checkpoint_callback = ModelCheckpoint(
