@@ -45,9 +45,9 @@ args = vars(parser(ARCH).parse_args(sys.argv[1:]))
 
 # prepare logs path
 all_logs = here("results/models/")
-logs_path = f"{all_logs}/{model_name}"
 for k, v in args.items():
-    logs_path += f"-{k}={v}"
+    model_name += f"-{k}={v}"
+logs_path = f"{all_logs}/{model_name}"
 Path(logs_path).mkdir(exist_ok=True)
 
 
@@ -57,16 +57,17 @@ class Model(ARCH):
         super(Model, self).__init__(**kwargs)
         self.loss = torch.nn.MSELoss()
 
+
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
         return optimizer
 
     def on_train_start(self):
+        # store hyperparameters
         repo = Repo(search_parent_directories=True)
+        hparams = {"sha": repo.head.object.hexsha, "batch_size": BATCH_SIZE, **args}
 
-        self.logger.log_hyperparams(
-            {"sha": repo.head.object.hexsha, "batch_size": BATCH_SIZE}
-        )
+        self.logger.log_hyperparams(hparams)
 
     def training_step(self, batch, batch_idx):
         return self.step(batch, batch_idx, "Train")
@@ -139,7 +140,7 @@ if __name__ == "__main__":
             devices=1,
             max_epochs=1,
         )
-        model = Model.load_from_checkpoint(checkpoint_callback.best_model_path)
+        model = Model.load_from_checkpoint(checkpoint_callback.best_model_path, **args)
         trainer.test(model, datamodule=dm)
         preds = trainer.predict(model, datamodule=dm)
         save_preds(

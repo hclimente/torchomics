@@ -10,6 +10,7 @@ results/models/
 *.tsv
 *.csv
 *.npz
+sge_job.sh.*
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,r,jupyternotebooks,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,r,jupyternotebooks,macos,linux
