@@ -9,7 +9,10 @@
 . /fefs/opt/dgx/env_set/nvcr-pytorch-2204.sh
 export PYTHONPATH=/home/hclimente/projects/dna2prot:${PYTHONPATH}
 
-for kernel_size in {3..9..2}
-do
-    python scripts/train.py -kernel_size $kernel_size -nb_repeats $SGE_TASK_ID -p_dropout 0 -seed 2
-done
+DROPOUT=`echo "print($SGE_TASK_ID/10.0)" | python`
+SEED=0
+
+python scripts/train.py -kernel_size 3 -nb_repeats 4 -p_dropout $DROPOUT -seed $SEED
+python scripts/train.py -kernel_size 7 -nb_repeats 8 -p_dropout $DROPOUT -seed $SEED
+python scripts/train.py -kernel_size 9 -nb_repeats 8 -p_dropout $DROPOUT -seed $SEED
+python scripts/train.py -kernel_size 9 -nb_repeats 9 -p_dropout $DROPOUT -seed $SEED
