@@ -10,7 +10,7 @@
 export PYTHONPATH=/home/hclimente/projects/dna2prot:${PYTHONPATH}
 
 DROPOUT=`echo "print($SGE_TASK_ID/10.0)" | python`
-SEED=0
+SEED=2
 
 python scripts/train.py -kernel_size 3 -nb_repeats 4 -p_dropout $DROPOUT -seed $SEED
 python scripts/train.py -kernel_size 7 -nb_repeats 8 -p_dropout $DROPOUT -seed $SEED
