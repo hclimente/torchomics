@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "Wannabe"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -50,8 +50,21 @@ logs_path = f"{here('results/models/')}/{model_name}/"
 sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
 for k, v in args.items():
+    if type(v) is list:
+        if v:
+            v = ",".join(v)
+        else:
+            v = "none"
+    elif k == "alpha" and "mixup" not in args["transforms"]:
+        continue
+
     version += f"-{k}={v}"
+
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
+
+# get additional hyperparameters
+transforms = args.pop("transforms")
+alpha = args.pop("alpha")
 
 
 # + tags=[]
@@ -72,6 +85,8 @@ class Model(ARCH):
             "sha": sha,
             "seed": seed,
             "batch_size": BATCH_SIZE,
+            "transforms": transforms,
+            "alpha": alpha,
             **args,
         }
 
@@ -136,7 +151,14 @@ if __name__ == "__main__":
         precision=16,
         deterministic=True,
     )
-    dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator)
+    dm = DreamDM(
+        here("data/dream/"),
+        BATCH_SIZE,
+        VAL_SIZE,
+        trainer.accelerator,
+        transforms,
+        alpha,
+    )
 
     # training
     model = Model(**args)

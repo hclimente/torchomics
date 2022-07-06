@@ -102,6 +102,8 @@ def parser(model):
 
     p = argparse.ArgumentParser()
     p.add_argument("-seed", default=0, type=int)
+    p.add_argument("-transforms", nargs="+", default=[])
+    p.add_argument("-alpha", default=0.2, type=float)
 
     # get other arguments from the signature
     model_args = inspect.getfullargspec(model)

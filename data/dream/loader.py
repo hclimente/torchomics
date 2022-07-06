@@ -12,7 +12,11 @@ from data.utils import load
 
 class Dream(Dataset):
     def __init__(
-        self, sequences: torch.Tensor, expression: torch.Tensor, transforms=[]
+        self,
+        sequences: torch.Tensor,
+        expression: torch.Tensor,
+        transforms: list = [],
+        alpha: float = 0.2,
     ):
 
         self.sequences = sequences
@@ -20,7 +24,6 @@ class Dream(Dataset):
         self.transforms = transforms
 
         # beta distribution to sample mixup probabilities
-        alpha = 0.2
         self.beta = Beta(alpha, alpha)
 
     def __len__(self):
@@ -64,11 +67,15 @@ class DreamDM(pl.LightningDataModule):
         batch_size: int = 32,
         val_size: int = 100,
         accelerator: pl.accelerators = None,
+        transforms: list = [],
+        alpha: float = 0.2,
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_size = val_size
+        self.transforms = transforms
+        self.alpha = alpha
 
         self.dev_machine = True
         if isinstance(accelerator, pl.accelerators.Accelerator):
@@ -97,20 +104,19 @@ class DreamDM(pl.LightningDataModule):
         self.pred = torch.load(f"{self.data_dir}/test.pt")
         self.pred.cache_rc()
 
-    def subset_data(self, subset, transforms=None):
+    def subset_data(self, subset, **kwargs):
 
         dataset = subset.dataset
 
         sequences = dataset.sequences[subset.indices]
         expression = dataset.expression[subset.indices]
-
-        ds = Dream(sequences, expression, transforms=transforms)
+        ds = Dream(sequences, expression, **kwargs)
         ds.cache_rc()
 
         return ds
 
     def train_dataloader(self):
-        ds = self.subset_data(self.train, ["mixup"])
+        ds = self.subset_data(self.train, transforms=self.transforms, alpha=self.alpha)
         return DataLoader(ds, shuffle=True, drop_last=True, **self.params)
 
     def val_dataloader(self):
