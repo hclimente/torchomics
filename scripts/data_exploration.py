@@ -23,13 +23,11 @@ from pyprojroot import here
 from sklearn.decomposition import PCA
 
 from data import Dream
-
-# from data.utils import one_hot_encode, pad
 from models.utils import numpify
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-# -
 
+# + tags=[]
 # load data
 train_df = pd.read_csv(
     f"{here('data/dream')}/train_sequences.txt", sep="\t", names=["seq", "expr"]
@@ -37,6 +35,7 @@ train_df = pd.read_csv(
 test_df = pd.read_csv(
     f"{here('data/dream')}/test_sequences.txt", sep="\t", names=["seq", "expr"]
 )
+# -
 
 # all sequences START with the same subsequence
 primer5 = "TGCATTTTTTTCACATC"
@@ -66,6 +65,8 @@ print(f"Test: max length={max(te_seq_len)}; min length={min(te_seq_len)}")
 
 # +
 # convert into one-hot
+# from data.utils import one_hot_encode, pad
+#
 # train_one_hot = torch.stack(
 #     [one_hot_encode(pad(x, max(tr_seq_len))) for x in train_df.seq]
 # )
@@ -239,7 +240,7 @@ train.rc_sequences = None  # save space
 
 torch.save(train, f"{here('data/dream')}/train.pt")
 
-# +
+# + tags=[]
 test = Dream(test_one_hot, torch.Tensor(test_df.expr))
 test.rc_sequences = None  # save space
 

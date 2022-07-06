@@ -5,7 +5,7 @@ from models.layers import RevCompConv1D
 
 
 class SimpleCNN(pl.LightningModule):
-    def __init__(self):
+    def __init__(self, p_dropout: float = 0.0):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv1d(4, 16, 5, padding="same"),
@@ -18,8 +18,10 @@ class SimpleCNN(pl.LightningModule):
 
         self.fc = nn.Sequential(
             nn.Linear(640, 256),
+            nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(256, 96),
+            nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(96, 1),
         )
