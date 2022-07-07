@@ -7,6 +7,7 @@ from .v0_simple_cnn import (
 )
 from .v1_resnet import ConvNeXt50, ResNet18, ResNet50, ResNeXt18, ResNeXt50
 from .v2_resnet_wannabe import Wannabe
+from .v4_densenet import DenseNet
 
 __all__ = [
     "SimpleCNN",
@@ -20,4 +21,5 @@ __all__ = [
     "ResNeXt18",
     "ResNeXt50",
     "ConvNeXt50",
+    "DenseNet",
 ]

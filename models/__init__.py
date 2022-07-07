@@ -3,6 +3,7 @@ from .basenji import Basenji
 from .simple_cnn import (
     ConvNeXt50,
     DeepCNN,
+    DenseNet,
     ResNet18,
     ResNet50,
     ResNeXt18,

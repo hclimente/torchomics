@@ -24,4 +24,4 @@ def test_forward():
 
 def test_str():
 
-    assert cnn.__class__.__name__ == "ResNet"
+    assert cnn.__class__.__name__ == "ResNet50"
