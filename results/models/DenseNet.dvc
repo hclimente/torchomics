@@ -1,0 +1,5 @@
+outs:
+- md5: f0489e70e66c0a170c0bf316322fd3f1.dir
+  size: 4463470
+  nfiles: 60
+  path: DenseNet
