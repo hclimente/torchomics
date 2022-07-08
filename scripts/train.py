@@ -53,12 +53,18 @@ for k, v in args.items():
     version += f"-{k}={v}"
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
+loss = args.pop("loss")
+
 
 # + tags=[]
 class Model(ARCH):
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
-        self.loss = torch.nn.MSELoss()
+
+        if loss == "mse":
+            self.loss = torch.nn.MSELoss()
+        elif loss == "huber":
+            self.loss = torch.nn.HuberLoss()
 
         kernel_size = kwargs.get("kernel_size", 0)
         self.example_input_array = torch.rand((1, 4, 80 + 2 * (kernel_size // 2)))

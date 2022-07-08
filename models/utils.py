@@ -108,6 +108,7 @@ def init_weights(layer, init="glorot"):
 def parser(model):
 
     p = argparse.ArgumentParser()
+    p.add_argument("-loss", default="mse", type=str, choices=["mse", "huber"])
     p.add_argument("-seed", default=0, type=int)
 
     # get other arguments from the signature
