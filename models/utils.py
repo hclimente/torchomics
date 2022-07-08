@@ -55,13 +55,20 @@ class Residual(nn.Module):
 
 
 def conv_block(
-    channels_in, channels_out, width=16, conv=nn.Conv1d, nb_repeats=3, dilation=1
+    channels_in,
+    channels_out,
+    width=16,
+    conv=nn.Conv1d,
+    nb_repeats=3,
+    dilation=1,
+    padding="same",
 ):
     block = []
 
-    for _ in range(nb_repeats):
+    for i in range(nb_repeats):
+        pad = padding if i == 0 else "same"
         block.append(
-            conv(channels_in, channels_out, width, padding="same", dilation=dilation)
+            conv(channels_in, channels_out, width, padding=pad, dilation=dilation)
         )
         block.append(nn.BatchNorm1d(channels_out))
         block.append(nn.GELU())
