@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from data.utils import load
+from data.utils import load, one_hot_encode
 
 
 class Dream(Dataset):
@@ -41,11 +41,13 @@ class DreamDM(pl.LightningDataModule):
         batch_size: int = 32,
         val_size: int = 100,
         accelerator: pl.accelerators = None,
+        hparams: dict = dict(),
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_size = val_size
+        self.kernel_size = hparams.get("kernel_size", 0)
 
         self.dev_machine = True
         if isinstance(accelerator, pl.accelerators.Accelerator):
@@ -66,6 +68,19 @@ class DreamDM(pl.LightningDataModule):
 
         tr_cached = "train_dev.pt" if self.dev_machine else "train.pt"
         tr = load("train_sequences.txt", tr_cached, Dream, path=self.data_dir)
+
+        # pad sequences with the real sequence if a kernel_size is provided
+        if self.kernel_size != 0:
+            head = one_hot_encode("TGCATTTTTTTCACATC")
+            head = head[:, -(self.kernel_size - 1) // 2 :]
+            head = head.repeat((len(tr), 1, 1))
+
+            tail = one_hot_encode("GGTTACGGCTGTT")
+            tail = tail[:, 0 : (self.kernel_size - 1) // 2]
+            tail = tail.repeat((len(tr), 1, 1))
+
+            tr.sequences = torch.cat((head, tr.sequences, tail), axis=2)
+
         tr.cache_rc()
 
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]

@@ -11,7 +11,7 @@ class Wannabe(pl.LightningModule):
         super(Wannabe, self).__init__()
 
         self.conv = nn.Sequential(
-            conv_block(4, 256, kernel_size),
+            conv_block(4, 256, kernel_size, padding=0),
             ResidualWannabe(conv_block(256, 256, kernel_size, nb_repeats=nb_repeats)),
             ResidualWannabe(conv_block(256, 256, kernel_size, nb_repeats=nb_repeats)),
             ResidualWannabe(conv_block(256, 256, kernel_size, nb_repeats=nb_repeats)),
