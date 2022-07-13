@@ -9,4 +9,4 @@
 . /fefs/opt/dgx/env_set/nvcr-pytorch-2204.sh
 export PYTHONPATH=/home/hclimente/projects/dna2prot:${PYTHONPATH}
 
-python scripts/train.py -seed $SGE_TASK_ID -growth_rate 10 -nb_repeats 30
+python scripts/train.py -seed $SGE_TASK_ID -growth_rate 5 -nb_repeats 100
