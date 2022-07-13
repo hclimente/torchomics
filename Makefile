@@ -41,7 +41,7 @@ jupyter_client:
 	ssh -N -L localhost:8080:localhost:8080 $(SERVER)
 
 tensorboard_server:
-	$(CONDA_ACTIVATE); tensorboard --logdir results/models/
+	$(CONDA_ACTIVATE); ulimit -n 5000; tensorboard --logdir results/models/
 
 tensorboard_client:
 	ssh -N -L localhost:6006:localhost:6006 $(SERVER)
