@@ -206,7 +206,7 @@ class ResNet(pl.LightningModule):
 
 class ResNet18(ResNet):
     def __init__(self):
-        super().__init__([2, 2, 2, 2], Bottleneck)
+        super().__init__([2, 2, 2, 2], BasicBlock)
 
 
 class ResNet50(ResNet):
@@ -221,7 +221,7 @@ class ResNeXt18(ResNet):
 
 class ResNeXt50(ResNet):
     def __init__(self):
-        super().__init__([3, 4, 6, 3], BasicBlock, groups=32)
+        super().__init__([3, 4, 6, 3], Bottleneck, groups=32)
 
 
 class ConvNeXt50(ResNet):

@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 
 import pytorch_lightning as pl
@@ -60,7 +59,7 @@ class DreamDM(pl.LightningDataModule):
         self.params = {
             "batch_size": batch_size,
             # NOTE most multiproc errors happen when num_workers is too large
-            "num_workers": int(os.cpu_count() / 4),
+            "num_workers": 4,
             "persistent_workers": True,
         }
 
