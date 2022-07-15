@@ -70,23 +70,28 @@ class DreamDM(pl.LightningDataModule):
         tr = load("train_sequences.txt", tr_cached, Dream, path=self.data_dir)
 
         # pad sequences with the real sequence if a kernel_size is provided
-        if self.kernel_size != 0:
-            head = one_hot_encode("TGCATTTTTTTCACATC")
-            head = head[:, -(self.kernel_size - 1) // 2 :]
-            head = head.repeat((len(tr), 1, 1))
+        def pad_sequences(d):
+            if self.kernel_size != 0:
+                head = one_hot_encode("TGCATTTTTTTCACATC")
+                head = head[:, -(self.kernel_size - 1) // 2 :]
+                head = head.repeat((len(d), 1, 1))
 
-            tail = one_hot_encode("GGTTACGGCTGTT")
-            tail = tail[:, 0 : (self.kernel_size - 1) // 2]
-            tail = tail.repeat((len(tr), 1, 1))
+                tail = one_hot_encode("GGTTACGGCTGTT")
+                tail = tail[:, 0 : (self.kernel_size - 1) // 2]
+                tail = tail.repeat((len(d), 1, 1))
 
-            tr.sequences = torch.cat((head, tr.sequences, tail), axis=2)
+                return torch.cat((head, d.sequences, tail), axis=2)
+            else:
+                return d.sequences
 
+        tr.sequences = pad_sequences(tr)
         tr.cache_rc()
 
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]
         self.train, self.val, self.test = torch.utils.data.random_split(tr, lengths)
 
         self.pred = torch.load(f"{self.data_dir}/test.pt")
+        self.pred.sequences = pad_sequences(self.pred)
         self.pred.cache_rc()
 
     def train_dataloader(self):
