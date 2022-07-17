@@ -2,6 +2,7 @@ from ._version import __version__
 from .basenji import Basenji
 from .simple_cnn import (
     AttentionResNet18,
+    AttentionResNet50,
     ConvNeXt50,
     DeepCNN,
     DenseNet,
@@ -40,4 +41,5 @@ __all__ = [
     "Transformer",
     "fix_seeds",
     "AttentionResNet18",
+    "AttentionResNet50",
 ]

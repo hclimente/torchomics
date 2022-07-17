@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 
-from models.simple_cnn.v1_resnet import BasicBlock, ResNet
+from models.simple_cnn.v1_resnet import BasicBlock, Bottleneck, ResNet
 
 
 class SelfAttention(pl.LightningModule):
@@ -45,10 +45,10 @@ class AttentionResNet(ResNet):
     def __init__(self, layers, block, base_width=64, groups=1):
         super(AttentionResNet, self).__init__(layers, block, base_width=64, groups=1)
 
-        self.attn1 = SelfAttention(base_width)
-        self.attn2 = SelfAttention(2 * base_width)
-        self.attn3 = SelfAttention(4 * base_width)
-        self.attn4 = SelfAttention(8 * base_width)
+        self.attn1 = SelfAttention(base_width * block.expansion)
+        self.attn2 = SelfAttention(2 * base_width * block.expansion)
+        self.attn3 = SelfAttention(4 * base_width * block.expansion)
+        self.attn4 = SelfAttention(8 * base_width * block.expansion)
 
     def forward(self, x, rc=None):
 
@@ -77,3 +77,8 @@ class AttentionResNet(ResNet):
 class AttentionResNet18(AttentionResNet):
     def __init__(self):
         super().__init__([2, 2, 2, 2], BasicBlock)
+
+
+class AttentionResNet50(AttentionResNet):
+    def __init__(self):
+        super().__init__([3, 4, 6, 3], Bottleneck)
