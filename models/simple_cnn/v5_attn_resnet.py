@@ -1,11 +1,12 @@
-import pytorch_lightning as pl
+import math
+
 import torch
 import torch.nn as nn
 
 from models.simple_cnn.v1_resnet import BasicBlock, Bottleneck, ResNet
 
 
-class SelfAttention(pl.LightningModule):
+class SelfAttention(nn.Module):
 
     """Self attention Layer"""
 
@@ -13,11 +14,13 @@ class SelfAttention(pl.LightningModule):
 
         super(SelfAttention, self).__init__()
 
+        self.proj_dim = in_dim // 8
+
         self.query_conv = nn.Conv1d(
-            in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1
+            in_channels=in_dim, out_channels=self.proj_dim, kernel_size=1
         )
         self.key_conv = nn.Conv1d(
-            in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1
+            in_channels=in_dim, out_channels=self.proj_dim, kernel_size=1
         )
         self.value_conv = nn.Conv1d(
             in_channels=in_dim, out_channels=in_dim, kernel_size=1
@@ -31,7 +34,7 @@ class SelfAttention(pl.LightningModule):
         proj_query = self.query_conv(x).permute(0, 2, 1)  # transpose
         proj_key = self.key_conv(x)
 
-        energy = torch.bmm(proj_query, proj_key)
+        energy = torch.bmm(proj_query, proj_key) / math.sqrt(self.proj_dim)
         attention = self.softmax(energy)
         proj_value = self.value_conv(x)
 
@@ -61,10 +64,10 @@ class AttentionResNet(ResNet):
         x = self.attn2(x)[0]
 
         x = self.layer3(x)
-        x = self.attn3(x)[0]
+        # x = self.attn3(x)[0]
 
         x = self.layer4(x)
-        x = self.attn4(x)[0]
+        # x = self.attn4(x)[0]
 
         x = self.avg_pool(x)
 
