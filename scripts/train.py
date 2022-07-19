@@ -76,10 +76,11 @@ class Model(ARCH):
     def on_train_start(self):
         # store hyperparameters
         hparams = {
+            "batch_size": BATCH_SIZE,
+            "loss": loss,
             "model": model_name,
             "sha": sha,
             "seed": seed,
-            "batch_size": BATCH_SIZE,
             **args,
         }
 
