@@ -4,9 +4,9 @@
 #$ -j y
 #$ -jc gpu-container_g8.24h
 #$ -ac d=nvcr-pytorch-2204
-#$ -t 1-5
+#$ -t 1-10
 
 . /fefs/opt/dgx/env_set/nvcr-pytorch-2204.sh
 export PYTHONPATH=/home/hclimente/projects/dna2prot:${PYTHONPATH}
 
-python scripts/train.py -seed $SGE_TASK_ID -kernel_size 7 -nb_repeats 8 -p_dropout 0.0 -loss huber
+python scripts/train.py -seed $SGE_TASK_ID -kernel_size 7 -nb_repeats 8 -p_dropout 0.0 -loss mse
