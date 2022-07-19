@@ -8,7 +8,7 @@ class SimpleCNN(pl.LightningModule):
     def __init__(self, p_dropout: float = 0.0, kernel_size: int = 5):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv1d(4, 16, kernel_size, padding="same"),
+            nn.Conv1d(4, 16, kernel_size),
             nn.ReLU(),
             nn.MaxPool1d(2),
             nn.Conv1d(16, 32, kernel_size, padding="same"),
