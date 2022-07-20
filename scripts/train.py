@@ -54,6 +54,7 @@ for k, v in args.items():
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
 loss = args.pop("loss")
+weight_decay = args.pop("weight_decay")
 
 
 # + tags=[]
@@ -78,6 +79,7 @@ class Model(ARCH):
         hparams = {
             "batch_size": BATCH_SIZE,
             "loss": loss,
+            "weight_decay": weight_decay,
             "model": model_name,
             "sha": sha,
             "seed": seed,
