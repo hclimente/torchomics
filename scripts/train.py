@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "Wannabe"
+model_name = "DeepLSTM"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -54,6 +54,7 @@ for k, v in args.items():
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
 loss = args.pop("loss")
+weight_decay = args.pop("weight_decay")
 
 
 # + tags=[]
@@ -78,6 +79,7 @@ class Model(ARCH):
         hparams = {
             "batch_size": BATCH_SIZE,
             "loss": loss,
+            "weight_decay": weight_decay,
             "model": model_name,
             "sha": sha,
             "seed": seed,
