@@ -1,0 +1,5 @@
+outs:
+- md5: 4c1bf5f538a9a02db8e985e08ba124d5.dir
+  size: 2980835
+  nfiles: 42
+  path: DeepLSTM

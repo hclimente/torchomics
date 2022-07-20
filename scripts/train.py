@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "Wannabe"
+model_name = "DeepLSTM"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
