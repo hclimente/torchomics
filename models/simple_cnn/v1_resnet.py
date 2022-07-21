@@ -229,9 +229,14 @@ class ResNeXt18(ResNet):
 
 class ResNeXt50(ResNet):
     def __init__(self):
-        super().__init__([3, 4, 6, 3], Bottleneck, groups=32, base_width=256)
+        super().__init__([3, 4, 6, 3], Bottleneck, groups=32, base_width=64)
+
+
+class ConvNeXt26(ResNet):
+    def __init__(self):
+        super().__init__([2, 2, 2, 2], ConvNeXtBottleneck, groups=32, base_width=48)
 
 
 class ConvNeXt50(ResNet):
     def __init__(self):
-        super().__init__([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=96)
+        super().__init__([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=64)
