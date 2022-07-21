@@ -21,10 +21,18 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
 
         self.bottleneck = nn.Sequential(
-            nn.Conv1d(channels_in, width, 1, bias=False, stride=stride, groups=groups),
+            nn.Conv1d(
+                channels_in,
+                width,
+                3,
+                padding=1,
+                bias=False,
+                stride=stride,
+                groups=groups,
+            ),
             nn.BatchNorm1d(width),
             nn.ReLU(),
-            nn.Conv1d(width, width, 1, bias=False, groups=groups),
+            nn.Conv1d(width, width, 3, padding=1, bias=False, groups=groups),
             nn.BatchNorm1d(width),
         )
 
@@ -206,7 +214,7 @@ class ResNet(pl.LightningModule):
 
 class ResNet18(ResNet):
     def __init__(self):
-        super().__init__([2, 2, 2, 2], Bottleneck)
+        super().__init__([2, 2, 2, 2], BasicBlock)
 
 
 class ResNet50(ResNet):
@@ -216,14 +224,19 @@ class ResNet50(ResNet):
 
 class ResNeXt18(ResNet):
     def __init__(self):
-        super().__init__([2, 2, 2, 2], BasicBlock, groups=32)
+        super().__init__([2, 2, 2, 2], BasicBlock, groups=32, base_width=256)
 
 
 class ResNeXt50(ResNet):
     def __init__(self):
-        super().__init__([3, 4, 6, 3], BasicBlock, groups=32)
+        super().__init__([3, 4, 6, 3], Bottleneck, groups=32, base_width=64)
+
+
+class ConvNeXt26(ResNet):
+    def __init__(self):
+        super().__init__([2, 2, 2, 2], ConvNeXtBottleneck, groups=32, base_width=48)
 
 
 class ConvNeXt50(ResNet):
     def __init__(self):
-        super().__init__([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=96)
+        super().__init__([3, 4, 6, 3], ConvNeXtBottleneck, groups=32, base_width=64)

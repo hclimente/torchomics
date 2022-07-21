@@ -1,8 +1,14 @@
 from ._version import __version__
 from .basenji import Basenji
 from .simple_cnn import (
+    AttentionResNet18,
+    AttentionResNet50,
+    ConvNeXt26,
     ConvNeXt50,
     DeepCNN,
+    DenseNet,
+    MultiHeadAttentionResNet18,
+    MultiHeadAttentionResNet50,
     ResNet18,
     ResNet50,
     ResNeXt18,
@@ -30,10 +36,16 @@ __all__ = [
     "ResNet50",
     "ResNeXt18",
     "ResNeXt50",
+    "ConvNeXt26",
     "ConvNeXt50",
     "Wannabe",
     "SimpleLSTM",
     "DeepLSTM",
     "Basenji",
-    "Transformer" "fix_seeds",
+    "Transformer",
+    "fix_seeds",
+    "AttentionResNet18",
+    "AttentionResNet50",
+    "MultiHeadAttentionResNet18",
+    "MultiHeadAttentionResNet50",
 ]

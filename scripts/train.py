@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "Wannabe"
+model_name = "ResNet50"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -65,14 +65,22 @@ Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 # get additional hyperparameters
 transforms = args.pop("transforms")
 alpha = args.pop("alpha")
+loss = args.pop("loss")
+weight_decay = args.pop("weight_decay")
 
 
 # + tags=[]
 class Model(ARCH):
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
-        self.loss = torch.nn.MSELoss()
-        self.example_input_array = torch.rand((1, 4, 80))
+
+        if loss == "mse":
+            self.loss = torch.nn.MSELoss()
+        elif loss == "huber":
+            self.loss = torch.nn.HuberLoss()
+
+        kernel_size = kwargs.get("kernel_size", 0)
+        self.example_input_array = torch.rand((1, 4, 80 + 2 * (kernel_size // 2)))
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
@@ -81,10 +89,12 @@ class Model(ARCH):
     def on_train_start(self):
         # store hyperparameters
         hparams = {
+            "batch_size": BATCH_SIZE,
+            "loss": loss,
+            "weight_decay": weight_decay,
             "model": model_name,
             "sha": sha,
             "seed": seed,
-            "batch_size": BATCH_SIZE,
             "transforms": transforms,
             "alpha": alpha,
             **args,
@@ -158,6 +168,7 @@ if __name__ == "__main__":
         trainer.accelerator,
         transforms,
         alpha,
+        args,
     )
 
     # training
@@ -183,3 +194,4 @@ if __name__ == "__main__":
             logger.log_dir,
             here("data/dream/sample_submission.json"),
         )
+# -

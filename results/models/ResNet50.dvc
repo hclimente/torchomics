@@ -1,0 +1,5 @@
+outs:
+- md5: adc812caddecb2dbe3cdc92e6f808e2d.dir
+  size: 2717449
+  nfiles: 38
+  path: ResNet50
