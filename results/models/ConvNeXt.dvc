@@ -1,5 +1,5 @@
 outs:
-- md5: 4a2e0add617220cbed91021efe19fbed.dir
-  size: 1488466
-  nfiles: 20
+- md5: ee14c7bec49ac4b73720fc6bcebc2eb2.dir
+  size: 2976731
+  nfiles: 40
   path: ConvNeXt
