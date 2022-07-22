@@ -1,8 +1,6 @@
 import pytorch_lightning as pl
 import torch.nn as nn
 
-from models.layers import RevCompConv1D
-
 
 class BasicBlock(nn.Module):
 
@@ -143,7 +141,7 @@ class ResNet(pl.LightningModule):
         self.channels_in = base_width
 
         self.input = nn.Sequential(
-            RevCompConv1D(4, self.channels_in, kernel_size, bias=False),
+            nn.Conv1d(4, self.channels_in, kernel_size),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
             nn.MaxPool1d(2),
