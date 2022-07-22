@@ -91,6 +91,16 @@ class Bottleneck(nn.Module):
 
 class ConvNeXtBottleneck(nn.Module):
 
+    """
+    Note that GroupNorm with num_groups=1 is equivalent to LayerNorm:
+    https://pytorch.org/docs/stable/generated/torch.nn.GroupNorm.html
+    (see under "Examples")
+
+
+    Note also that groups is a dummy parameter, as groups=channels_in
+    (i.e. depth-wise convolution)
+    """
+
     expansion: int = 1
 
     def __init__(
@@ -98,7 +108,7 @@ class ConvNeXtBottleneck(nn.Module):
         channels_in,
         width,
         stride,
-        groups,
+        groups=None,
         downsample=None,
     ):
         super(ConvNeXtBottleneck, self).__init__()
@@ -146,7 +156,7 @@ class ResNet(pl.LightningModule):
             RevCompConv1D(4, self.channels_in, kernel_size, bias=False),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
-            nn.MaxPool1d(2),
+            # nn.MaxPool1d(2),
         )
 
         self.layer1 = self._make_layer(
