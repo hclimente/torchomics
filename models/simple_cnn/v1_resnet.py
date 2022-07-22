@@ -143,7 +143,7 @@ class ResNet(pl.LightningModule):
         self.channels_in = base_width
 
         self.input = nn.Sequential(
-            RevCompConv1D(4, self.channels_in, kernel_size, padding="same", bias=False),
+            RevCompConv1D(4, self.channels_in, kernel_size, bias=False),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
             nn.MaxPool1d(2),
@@ -215,15 +215,15 @@ class ResNet(pl.LightningModule):
 class ConvNeXt(ResNet):
     def __init__(
         self,
-        layers: list = [2, 2, 2, 2],
+        layers: list = [3, 4, 6, 3],
         groups: int = 32,
-        base_width: int = 48,
-        # kernel_size: int = 15,
+        base_width: int = 64,
+        kernel_size: int = 15,
     ):
         super().__init__(
             layers,
             ConvNeXtBottleneck,
-            # kernel_size=kernel_size,
+            kernel_size=kernel_size,
             groups=groups,
             base_width=base_width,
         )
