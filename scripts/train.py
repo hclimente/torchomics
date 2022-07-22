@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "ResNet50"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -51,11 +51,8 @@ sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
 for k, v in args.items():
     if type(v) is list:
-        if v:
-            v = ",".join(v)
-        else:
-            v = "none"
-    elif k == "alpha" and "mixup" not in args["transforms"]:
+        v = ",".join(v) if v else "none"
+    elif k in ["mixup_alpha", "cutmix_alpha"] and v == 0.0:
         continue
 
     version += f"-{k}={v}"
@@ -63,10 +60,12 @@ for k, v in args.items():
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
 # get additional hyperparameters
-transforms = args.pop("transforms")
-alpha = args.pop("alpha")
-loss = args.pop("loss")
-weight_decay = args.pop("weight_decay")
+loader_params = {
+    "mixup_alpha": args.pop("mixup_alpha"),
+    "cutmix_alpha": args.pop("cutmix_alpha"),
+}
+opt_params = {"loss": args.pop("loss"), "weight_decay": args.pop("weight_decay")}
+model_params = args
 
 
 # + tags=[]
@@ -74,9 +73,9 @@ class Model(ARCH):
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
 
-        if loss == "mse":
+        if opt_params["loss"] == "mse":
             self.loss = torch.nn.MSELoss()
-        elif loss == "huber":
+        elif opt_params["loss"] == "huber":
             self.loss = torch.nn.HuberLoss()
 
         kernel_size = kwargs.get("kernel_size", 0)
@@ -90,14 +89,12 @@ class Model(ARCH):
         # store hyperparameters
         hparams = {
             "batch_size": BATCH_SIZE,
-            "loss": loss,
-            "weight_decay": weight_decay,
             "model": model_name,
             "sha": sha,
             "seed": seed,
-            "transforms": transforms,
-            "alpha": alpha,
-            **args,
+            **loader_params,
+            **opt_params,
+            **model_params,
         }
 
         self.logger.log_hyperparams(hparams, {"test/pearson": 0, "test/spearman": 0})
@@ -155,10 +152,10 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
         # NOTE comment out next two lines in dev machines
-        gpus=-1,
-        strategy="ddp_find_unused_parameters_false",
+        # gpus=-1,
+        # strategy="ddp_find_unused_parameters_false",
         # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
-        precision=16,
+        # precision=16,
         deterministic=True,
     )
     dm = DreamDM(
@@ -166,13 +163,12 @@ if __name__ == "__main__":
         BATCH_SIZE,
         VAL_SIZE,
         trainer.accelerator,
-        transforms,
-        alpha,
-        args,
+        **loader_params,
+        model_params=model_params,
     )
 
     # training
-    model = Model(**args)
+    model = Model(**model_params)
     trainer.fit(model, dm)
 
     # predictions
@@ -186,7 +182,9 @@ if __name__ == "__main__":
             devices=1,
             max_epochs=1,
         )
-        model = Model.load_from_checkpoint(checkpoint_callback.best_model_path, **args)
+        model = Model.load_from_checkpoint(
+            checkpoint_callback.best_model_path, **model_params
+        )
         trainer.test(model, datamodule=dm)
         preds = trainer.predict(model, datamodule=dm)
         save_preds(

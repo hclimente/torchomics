@@ -15,16 +15,17 @@ class Dream(Dataset):
         self,
         sequences: torch.Tensor,
         expression: torch.Tensor,
-        transforms: list = [],
-        alpha: float = 0.2,
+        mixup_alpha: float = 0.0,
+        cutmix_alpha: float = 0.0,
     ):
 
         self.sequences = sequences
         self.expression = expression.float()
-        self.transforms = transforms
 
-        # beta distribution to sample mixup probabilities
-        self.beta = Beta(alpha, alpha)
+        self.mixup_dist = Beta(mixup_alpha, mixup_alpha) if mixup_alpha > 0 else None
+        self.cutmix_dist = (
+            Beta(cutmix_alpha, cutmix_alpha) if cutmix_alpha > 0 else None
+        )
 
     def __len__(self):
         return len(self.expression)
@@ -34,28 +35,38 @@ class Dream(Dataset):
         rc = self.rc_sequences[idx, :]
         expression = self.expression[idx, None]
 
-        if self.transforms:
-            seq, rc, expression = self.apply_transforms(idx, seq, rc, expression)
-
-        return seq, rc, expression
+        return self.apply_transforms(idx, seq, rc, expression)
 
     def cache_rc(self):
         self.rc_sequences = self.sequences.flip(1, 2)
 
     def apply_transforms(self, idx, seq, rc, expression):
+        def sample():
+            i = random.randint(0, len(self) - 1)
+            return self.sequences[i], self.rc_sequences[i], self.expression[i]
 
-        if "mixup" in self.transforms and idx % 5 == 0:
-            # randomly select another sequence
-            mixup_idx = random.randint(0, len(self) - 1)
-            mixup_seq = self.sequences[mixup_idx]
-            mixup_rc = self.rc_sequences[mixup_idx]
-            mixup_expression = self.expression[mixup_idx]
+        if self.mixup_dist and idx % 5 == 0:
 
-            # sample a probability and mixup the sequences accordingly
-            p = self.beta.sample()
-            seq = p * seq + (1 - p) * mixup_seq
-            rc = p * rc + (1 - p) * mixup_rc
-            expression = p * expression + (1 - p) * mixup_expression
+            p = self.mixup_dist.sample()
+
+            r_seq, r_rc, r_expr = sample()
+            seq = p * seq + (1 - p) * r_seq
+            rc = p * rc + (1 - p) * r_rc
+            expression = p * expression + (1 - p) * r_expr
+
+        if self.cutmix_dist:
+
+            p = self.cutmix_dist.sample()
+            length = seq.shape[1]
+            pos = random.randint(0, length)
+            width = int(length * torch.sqrt(1 - p) / 2)
+            x0 = max(0, pos - width)
+            x1 = min(length, pos + width)
+
+            r_seq, r_rc, r_expr = sample()
+            seq[:, x0:x1] = r_seq[:, x0:x1]
+            rc[:, x0:x1] = r_rc[:, x0:x1]
+            expression = p * expression + (1 - p) * r_expr
 
         return seq, rc, expression
 
@@ -67,17 +78,17 @@ class DreamDM(pl.LightningDataModule):
         batch_size: int = 32,
         val_size: int = 100,
         accelerator: pl.accelerators = None,
-        transforms: list = [],
-        alpha: float = 0.2,
-        hparams: dict = dict(),
+        mixup_alpha: float = 0.2,
+        cutmix_alpha: float = 0.2,
+        model_params: dict = dict(),
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_size = val_size
-        self.transforms = transforms
-        self.alpha = alpha
-        self.kernel_size = hparams.get("kernel_size", 0)
+        self.mixup_alpha = mixup_alpha
+        self.cutmix_alpha = cutmix_alpha
+        self.kernel_size = model_params.get("kernel_size", 0)
 
         self.dev_machine = True
         if isinstance(accelerator, pl.accelerators.Accelerator):
@@ -136,7 +147,9 @@ class DreamDM(pl.LightningDataModule):
         return ds
 
     def train_dataloader(self):
-        ds = self.subset_data(self.train, transforms=self.transforms, alpha=self.alpha)
+        ds = self.subset_data(
+            self.train, mixup_alpha=self.mixup_alpha, cutmix_alpha=self.cutmix_alpha
+        )
         return DataLoader(ds, shuffle=True, drop_last=True, **self.params)
 
     def val_dataloader(self):
