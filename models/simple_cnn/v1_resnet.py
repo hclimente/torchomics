@@ -1,8 +1,6 @@
 import pytorch_lightning as pl
 import torch.nn as nn
 
-from models.layers import RevCompConv1D
-
 
 class BasicBlock(nn.Module):
 
@@ -153,10 +151,9 @@ class ResNet(pl.LightningModule):
         self.channels_in = base_width
 
         self.input = nn.Sequential(
-            RevCompConv1D(4, self.channels_in, kernel_size, bias=False),
+            nn.Conv1d(4, self.channels_in, kernel_size),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
-            # nn.MaxPool1d(2),
         )
 
         self.layer1 = self._make_layer(
@@ -225,9 +222,9 @@ class ResNet(pl.LightningModule):
 class ConvNeXt(ResNet):
     def __init__(
         self,
-        layers: list = [2, 2, 2, 2],
+        layers: list = [3, 4, 6, 3],
         groups: int = 32,
-        base_width: int = 48,
+        base_width: int = 64,
         kernel_size: int = 15,
     ):
         super().__init__(
