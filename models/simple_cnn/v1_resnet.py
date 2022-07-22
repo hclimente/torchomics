@@ -212,6 +212,15 @@ class ResNet(pl.LightningModule):
         return nn.Sequential(*layers)
 
 
+class ConvNeXt(ResNet):
+    def __init__(
+        self, layers: list = [2, 2, 2, 2], groups: int = 32, base_width: int = 48
+    ):
+        super().__init__(
+            layers, ConvNeXtBottleneck, groups=groups, base_width=base_width
+        )
+
+
 class ResNet18(ResNet):
     def __init__(self):
         super().__init__([2, 2, 2, 2], BasicBlock)

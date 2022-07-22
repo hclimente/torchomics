@@ -32,7 +32,7 @@ from models.utils import parser
 
 # + tags=[]
 # hyperparameters
-model_name = "ResNet50"
+model_name = "ConvNeXt"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -50,6 +50,11 @@ logs_path = f"{here('results/models/')}/{model_name}/"
 sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
 for k, v in args.items():
+    if type(v) is list:
+        v = f"[{','.join(str(x) for x in v)}]" if v else "none"
+    elif k in ["weight_decay", "mixup_alpha", "cutmix_alpha"] and v == 0.0:
+        continue
+
     version += f"-{k}={v}"
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
