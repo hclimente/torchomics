@@ -154,7 +154,7 @@ class ResNet(pl.LightningModule):
         self.channels_in = base_width
 
         self.input = nn.Sequential(
-            nn.Conv1d(4, self.channels_in, 15),
+            nn.Conv1d(4, self.channels_in, 3),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
         )
