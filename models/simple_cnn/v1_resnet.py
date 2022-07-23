@@ -91,6 +91,16 @@ class Bottleneck(nn.Module):
 
 class ConvNeXtBottleneck(nn.Module):
 
+    """
+    Note that GroupNorm with num_groups=1 is equivalent to LayerNorm:
+    https://pytorch.org/docs/stable/generated/torch.nn.GroupNorm.html
+    (see under "Examples")
+
+
+    Note also that groups is a dummy parameter, as groups=channels_in
+    (i.e. depth-wise convolution)
+    """
+
     expansion: int = 1
 
     def __init__(
@@ -99,7 +109,7 @@ class ConvNeXtBottleneck(nn.Module):
         width,
         kernel_size,
         stride,
-        groups,
+        groups=None,
         downsample=None,
     ):
         super(ConvNeXtBottleneck, self).__init__()
