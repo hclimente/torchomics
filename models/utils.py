@@ -120,6 +120,9 @@ def parser(model):
     types = typing.get_type_hints(model.__init__)
 
     for arg, val in zip(argnames, defaults):
-        p.add_argument(f"-{arg}", default=val, type=types[arg])
+        if types[arg] is list:
+            p.add_argument(f"-{arg}", default=val, nargs="+", type=int)
+        else:
+            p.add_argument(f"-{arg}", default=val, type=types[arg])
 
     return p
