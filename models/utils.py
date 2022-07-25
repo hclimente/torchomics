@@ -105,7 +105,7 @@ def init_weights(layer, init="glorot"):
         constant_(layer.bias.data, 0.0)
 
 
-def parser():
+def base_parser():
 
     p = argparse.ArgumentParser()
     p.add_argument("-loss", default="mse", type=str, choices=["mse", "huber"])

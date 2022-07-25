@@ -28,7 +28,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
 from data import Dream, DreamDM, save_preds
-from models.utils import parser, parser_from_object
+from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
@@ -41,7 +41,7 @@ N_EPOCHS = 12
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
-opt_params, rest = parser().parse_known_args(sys.argv[1:])
+opt_params, rest = base_parser().parse_known_args(sys.argv[1:])
 opt_params = vars(opt_params)
 model_params, rest = parser_from_object(ARCH).parse_known_args(rest)
 model_params = vars(model_params)
