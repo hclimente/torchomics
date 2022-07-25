@@ -112,8 +112,10 @@ class DreamDM(pl.LightningDataModule):
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]
         self.train, self.val, self.test = torch.utils.data.random_split(tr, lengths)
 
-        self.pred = torch.load(f"{self.data_dir}/test.pt")
-        self.pred.sequences = pad_sequences(self.pred)
+        pred = torch.load(f"{self.data_dir}/test.pt")
+        pred.sequences = pad_sequences(pred)
+
+        self.pred = Dream(pred.sequences, pred.expression, **self.loader_params)
         self.pred.cache_rc()
 
     def subset_data(self, subset, **kwargs):
@@ -127,17 +129,28 @@ class DreamDM(pl.LightningDataModule):
 
         return ds
 
+    def train_dataset(self):
+        return self.subset_data(self.train, **self.loader_params)
+
     def train_dataloader(self):
-        ds = self.subset_data(self.train, **self.loader_params)
-        return DataLoader(ds, shuffle=True, drop_last=True, **self.params)
+        return DataLoader(
+            self.train_dataset(), shuffle=True, drop_last=True, **self.params
+        )
+
+    def val_dataset(self):
+        return self.subset_data(self.val, **self.loader_params)
 
     def val_dataloader(self):
-        ds = self.subset_data(self.val)
-        return DataLoader(ds, **self.params)
+        return DataLoader(self.val_dataset(), **self.params)
+
+    def test_dataset(self):
+        return self.subset_data(self.test, **self.loader_params)
 
     def test_dataloader(self):
-        ds = self.subset_data(self.test)
-        return DataLoader(ds, **self.params)
+        return DataLoader(self.test_dataset(), **self.params)
+
+    def pred_dataset(self):
+        return self.pred
 
     def predict_dataloader(self):
         return DataLoader(self.pred, **self.params)
