@@ -32,7 +32,7 @@ from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
-model_name = "SimpleCNN"
+model_name = "ConvNeXt"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -41,10 +41,10 @@ N_EPOCHS = 12
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
-opt_params, rest = base_parser().parse_known_args(sys.argv[1:])
-opt_params = vars(opt_params)
-model_params, rest = parser_from_object(ARCH).parse_known_args(rest)
+model_params, rest = parser_from_object(ARCH).parse_known_args(sys.argv[1:])
 model_params = vars(model_params)
+opt_params, rest = base_parser().parse_known_args(rest)
+opt_params = vars(opt_params)
 loader_params = vars(parser_from_object(Dream).parse_args(rest))
 
 # prepare logs path
