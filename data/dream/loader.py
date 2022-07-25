@@ -1,12 +1,12 @@
 import os
+import random
 from typing import Optional
 
 import pytorch_lightning as pl
 import torch
-from torch.distributions.beta import Beta
 from torch.utils.data import DataLoader, Dataset
 
-from data.transforms import cutmix, mixup, rand_erase
+from data.transforms import Cutmix, Mixup, Mutate, RandomErase
 from data.utils import load, one_hot_encode
 
 
@@ -18,18 +18,19 @@ class Dream(Dataset):
         mixup_alpha: float = 0.0,
         cutmix_alpha: float = 0.0,
         erase_alpha: float = 0.0,
+        n_mutations: int = 0,
     ):
 
         self.sequences = sequences
         self.expression = expression.float()
 
-        self.mixup_dist = Beta(mixup_alpha, mixup_alpha) if mixup_alpha > 0 else None
-        self.cutmix_dist = (
-            Beta(cutmix_alpha, cutmix_alpha) if cutmix_alpha > 0 else None
-        )
-        self.rand_erase_dist = (
-            Beta(erase_alpha, erase_alpha) if erase_alpha > 0 else None
-        )
+        self.transforms = [
+            Mixup(mixup_alpha, self),
+            Cutmix(cutmix_alpha, self),
+            RandomErase(erase_alpha),
+            Mutate(n_mutations),
+        ]
+        self.transforms = [t for t in self.transforms if t]
 
     def __len__(self):
         return len(self.expression)
@@ -46,14 +47,9 @@ class Dream(Dataset):
 
     def apply_transforms(self, idx, seq, rc, expression):
 
-        if self.mixup_dist and idx % 5 == 0:
-            seq, rc, expression = mixup(seq, rc, expression, self.mixup_dist, self)
-
-        if self.cutmix_dist:
-            seq, rc, expression = cutmix(seq, rc, expression, self.cutmix_dist, self)
-
-        if self.rand_erase_dist:
-            seq, rc, expression = rand_erase(seq, rc, expression, self.rand_erase_dist)
+        if self.transforms and idx % 5 == 0:
+            t = random.choice(self.transforms)
+            seq, rc, expression = t(seq, rc, expression)
 
         return seq, rc, expression
 

@@ -1,64 +1,115 @@
 import random
 
 import torch
+from torch.distributions.beta import Beta
 
 
-def mixup(seq, rc, expression, p_dist, dataset):
+class Transform:
+    def __init__(self):
+        pass
 
-    p = p_dist.sample()
-
-    r_seq, r_rc, r_expr = item_sampler(dataset)
-    seq = p * seq + (1 - p) * r_seq
-    rc = p * rc + (1 - p) * r_rc
-    expression = p * expression + (1 - p) * r_expr
-
-    return seq, rc, expression
-
-
-def cutmix(seq, rc, expression, p_dist, dataset):
-
-    length = seq.shape[1]
-
-    p = p_dist.sample()
-    width = int(length * torch.sqrt(1 - p) / 2)
-
-    pos = random.randint(0, length)
-    x0, x1 = max(0, pos - width), min(length, pos + width)
-
-    r_seq, r_rc, r_expr = item_sampler(dataset)
-    seq[:, x0:x1] = r_seq[:, x0:x1]
-    rc[:, x0:x1] = r_rc[:, x0:x1]
-    expression = p * expression + (1 - p) * r_expr
-
-    return seq, rc, expression
+    def __call__(self, *args):
+        if self:
+            args = [x.clone() for x in args]
+            return self.apply(*args)
+        else:
+            return args
 
 
-def rand_erase(seq, rc, expression, p_dist):
+class Mixup(Transform):
+    def __init__(self, alpha, dataset):
+        super().__init__()
+        self.alpha = alpha
+        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+        self.dataset = dataset
 
-    length = seq.shape[1]
+    def __bool__(self):
+        return self.alpha != 0
 
-    p = p_dist.sample()
-    width = int(length * torch.sqrt(1 - p) / 2)
+    def apply(self, seq, rc, expression):
 
-    pos = random.randint(0, length)
-    x0, x1 = max(0, pos - width), min(length, pos + width)
+        p = self.p_dist.sample()
 
-    seq[:, x0:x1] = torch.rand(seq[:, x0:x1].shape)
-    rc[:, x0:x1] = torch.rand(rc[:, x0:x1].shape)
+        r_seq, r_rc, r_expr = item_sampler(self.dataset)
+        seq = p * seq + (1 - p) * r_seq
+        rc = p * rc + (1 - p) * r_rc
+        expression = p * expression + (1 - p) * r_expr
 
-    return seq, rc, expression
+        return seq, rc, expression
 
 
-def mutate(seq, rc, expression, n):
+class Cutmix(Transform):
+    def __init__(self, alpha, dataset):
+        super().__init__()
+        self.alpha = alpha
+        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+        self.dataset = dataset
 
-    # FIXME: this function is probably wrong
-    length = seq.shape[1]
+    def __bool__(self):
+        return self.alpha != 0
 
-    pos = torch.randint(high=length, size=(n,))
-    perm = torch.vstack([torch.randperm(4) for _ in range(n)]).T
-    seq[:, :, pos] = seq[:, perm, pos]
+    def apply(self, seq, rc, expression):
 
-    return seq, rc, expression
+        length = seq.shape[1]
+
+        p = self.p_dist.sample()
+        width = int(length * torch.sqrt(1 - p) / 2)
+
+        pos = random.randint(0, length)
+        x0, x1 = max(0, pos - width), min(length, pos + width)
+
+        r_seq, r_rc, r_expr = item_sampler(self.dataset)
+        seq[:, x0:x1] = r_seq[:, x0:x1]
+        rc[:, x0:x1] = r_rc[:, x0:x1]
+        expression = p * expression + (1 - p) * r_expr
+
+        return seq, rc, expression
+
+
+class RandomErase(Transform):
+    def __init__(self, alpha):
+        super().__init__()
+        self.alpha = alpha
+        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+
+    def __bool__(self):
+        return self.alpha != 0
+
+    def apply(self, seq, rc, expression):
+
+        length = seq.shape[1]
+
+        p = self.p_dist.sample()
+        width = int(length * torch.sqrt(1 - p) / 2)
+
+        pos = random.randint(0, length)
+        x0, x1 = max(0, pos - width), min(length, pos + width)
+
+        seq[:, x0:x1] = torch.rand(seq[:, x0:x1].shape)
+        rc[:, x0:x1] = torch.rand(rc[:, x0:x1].shape)
+
+        return seq, rc, expression
+
+
+class Mutate(Transform):
+    def __init__(self, n):
+        super().__init__()
+        self.n = n
+
+    def __bool__(self):
+        return self.n > 0
+
+    def apply(self, seq, rc, expression):
+
+        length = seq.shape[1]
+
+        pos = torch.randint(high=length, size=(self.n,))
+        perm = torch.vstack([torch.randperm(4) for _ in range(self.n)]).T
+
+        seq[:, pos] = seq[perm, pos]
+        rc[:, pos] = rc[perm, pos]
+
+        return seq, rc, expression
 
 
 def item_sampler(dataset):
