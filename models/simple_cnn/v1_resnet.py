@@ -159,6 +159,7 @@ class ResNet(pl.LightningModule):
             RevCompConv1D(4, self.channels_in, 3),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
+            nn.MaxPool1d(2),
         )
 
         self.layer1 = self._make_layer(
