@@ -1,37 +1,57 @@
 import os
+import random
 from typing import Optional
 
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
 
+from data.transforms import Cutmix, Mixup, Mutate, RandomErase
 from data.utils import load, one_hot_encode
 
 
 class Dream(Dataset):
     def __init__(
-        self, sequences: torch.Tensor, expression: torch.Tensor, transforms=None
+        self,
+        sequences: torch.Tensor = None,
+        expression: torch.Tensor = None,
+        mixup_alpha: float = 0.0,
+        cutmix_alpha: float = 0.0,
+        erase_alpha: float = 0.0,
+        n_mutations: int = 0,
     ):
 
         self.sequences = sequences
         self.expression = expression.float()
-        self.transforms = transforms
+
+        self.transforms = [
+            Mixup(mixup_alpha, self),
+            Cutmix(cutmix_alpha, self),
+            RandomErase(erase_alpha),
+            Mutate(n_mutations),
+        ]
+        self.transforms = [t for t in self.transforms if t]
 
     def __len__(self):
         return len(self.expression)
 
-    def __getitem__(self, index):
-        seq = self.sequences[index, :]
-        rc = self.rc_sequences[index, :]
-        expression = self.expression[index, None]
+    def __getitem__(self, idx):
+        seq = self.sequences[idx, :]
+        rc = self.rc_sequences[idx, :]
+        expression = self.expression[idx, None]
 
-        if self.transforms:
-            seq = self.transforms(seq)
-
-        return seq, rc, expression
+        return self.apply_transforms(idx, seq, rc, expression)
 
     def cache_rc(self):
         self.rc_sequences = self.sequences.flip(1, 2)
+
+    def apply_transforms(self, idx, seq, rc, expression):
+
+        if self.transforms and idx % 5 == 0:
+            t = random.choice(self.transforms)
+            seq, rc, expression = t(seq, rc, expression)
+
+        return seq, rc, expression
 
 
 class DreamDM(pl.LightningDataModule):
@@ -41,13 +61,15 @@ class DreamDM(pl.LightningDataModule):
         batch_size: int = 32,
         val_size: int = 100,
         accelerator: pl.accelerators = None,
-        hparams: dict = dict(),
+        loader_params: dict = dict(),
+        model_params: dict = dict(),
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_size = val_size
-        self.kernel_size = hparams.get("kernel_size", 0)
+        self.kernel_size = model_params.get("kernel_size", 0)
+        self.loader_params = loader_params
 
         self.dev_machine = True
         if isinstance(accelerator, pl.accelerators.Accelerator):
@@ -94,14 +116,28 @@ class DreamDM(pl.LightningDataModule):
         self.pred.sequences = pad_sequences(self.pred)
         self.pred.cache_rc()
 
+    def subset_data(self, subset, **kwargs):
+
+        dataset = subset.dataset
+
+        sequences = dataset.sequences[subset.indices]
+        expression = dataset.expression[subset.indices]
+        ds = Dream(sequences, expression, **kwargs)
+        ds.cache_rc()
+
+        return ds
+
     def train_dataloader(self):
-        return DataLoader(self.train, shuffle=True, drop_last=True, **self.params)
+        ds = self.subset_data(self.train, **self.loader_params)
+        return DataLoader(ds, shuffle=True, drop_last=True, **self.params)
 
     def val_dataloader(self):
-        return DataLoader(self.val, **self.params)
+        ds = self.subset_data(self.val)
+        return DataLoader(ds, **self.params)
 
     def test_dataloader(self):
-        return DataLoader(self.test, **self.params)
+        ds = self.subset_data(self.test)
+        return DataLoader(ds, **self.params)
 
     def predict_dataloader(self):
         return DataLoader(self.pred, **self.params)

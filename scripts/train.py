@@ -27,12 +27,12 @@ from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
-from data import DreamDM, save_preds
-from models.utils import parser
+from data import Dream, DreamDM, save_preds
+from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
-model_name = "ConvNeXt"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -41,25 +41,27 @@ N_EPOCHS = 12
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
-args = vars(parser(ARCH).parse_args(sys.argv[1:]))
-seed = args.pop("seed")
+opt_params, rest = base_parser().parse_known_args(sys.argv[1:])
+opt_params = vars(opt_params)
+model_params, rest = parser_from_object(ARCH).parse_known_args(rest)
+model_params = vars(model_params)
+loader_params = vars(parser_from_object(Dream).parse_args(rest))
 
 # prepare logs path
 logs_path = f"{here('results/models/')}/{model_name}/"
 
+seed = opt_params.pop("seed")
 sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
-for k, v in args.items():
+for k, v in (opt_params | model_params | loader_params).items():
     if type(v) is list:
         v = f"[{','.join(str(x) for x in v)}]" if v else "none"
-    elif k in ["weight_decay", "mixup_alpha", "cutmix_alpha"] and v == 0.0:
+    elif (k in loader_params.keys() or k == "weight_decay") and v == 0.0:
         continue
 
     version += f"-{k}={v}"
-Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
-loss = args.pop("loss")
-weight_decay = args.pop("weight_decay")
+Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 
 
 # + tags=[]
@@ -67,9 +69,9 @@ class Model(ARCH):
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
 
-        if loss == "mse":
+        if opt_params["loss"] == "mse":
             self.loss = torch.nn.MSELoss()
-        elif loss == "huber":
+        elif opt_params["loss"] == "huber":
             self.loss = torch.nn.HuberLoss()
 
         kernel_size = kwargs.get("kernel_size", 0)
@@ -83,12 +85,12 @@ class Model(ARCH):
         # store hyperparameters
         hparams = {
             "batch_size": BATCH_SIZE,
-            "loss": loss,
-            "weight_decay": weight_decay,
             "model": model_name,
             "sha": sha,
             "seed": seed,
-            **args,
+            **loader_params,
+            **opt_params,
+            **model_params,
         }
 
         self.logger.log_hyperparams(hparams, {"test/pearson": 0, "test/spearman": 0})
@@ -152,10 +154,17 @@ if __name__ == "__main__":
         precision=16,
         deterministic=True,
     )
-    dm = DreamDM(here("data/dream/"), BATCH_SIZE, VAL_SIZE, trainer.accelerator, args)
+    dm = DreamDM(
+        here("data/dream/"),
+        BATCH_SIZE,
+        VAL_SIZE,
+        trainer.accelerator,
+        loader_params=loader_params,
+        model_params=model_params,
+    )
 
     # training
-    model = Model(**args)
+    model = Model(**model_params)
     trainer.fit(model, dm)
 
     # predictions
@@ -169,7 +178,9 @@ if __name__ == "__main__":
             devices=1,
             max_epochs=1,
         )
-        model = Model.load_from_checkpoint(checkpoint_callback.best_model_path, **args)
+        model = Model.load_from_checkpoint(
+            checkpoint_callback.best_model_path, **model_params
+        )
         trainer.test(model, datamodule=dm)
         preds = trainer.predict(model, datamodule=dm)
         save_preds(
