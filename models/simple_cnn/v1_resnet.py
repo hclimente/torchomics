@@ -228,8 +228,8 @@ class ResNet(pl.LightningModule):
 class ConvNeXt(ResNet):
     def __init__(
         self,
-        layers: list = [3, 4, 6, 3],
-        base_width: int = 64,
+        layers: list = [3, 3, 9, 3],
+        base_width: int = 96,
         kernel_size: int = 7,
     ):
         super().__init__(
