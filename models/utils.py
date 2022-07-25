@@ -120,7 +120,7 @@ def parser_from_object(obj):
     p = argparse.ArgumentParser()
 
     # get other arguments from the signature
-    args = inspect.getfullargspec(obj)
+    args = inspect.getfullargspec(obj.__init__)
 
     argnames = args.args[1:]
     defaults = args.defaults if argnames else []
