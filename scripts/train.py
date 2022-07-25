@@ -53,7 +53,7 @@ logs_path = f"{here('results/models/')}/{model_name}/"
 seed = opt_params.pop("seed")
 sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
-for k, v in (opt_params | model_params | loader_params).items():
+for k, v in {**opt_params, **model_params, **loader_params}.items():
     if type(v) is list:
         v = f"[{','.join(str(x) for x in v)}]" if v else "none"
     elif (k in loader_params.keys() or k == "weight_decay") and v == 0.0:
