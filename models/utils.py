@@ -113,6 +113,7 @@ def parser(model):
     p.add_argument("-seed", default=0, type=int)
     p.add_argument("-mixup_alpha", default=0.0, type=float)
     p.add_argument("-cutmix_alpha", default=0.0, type=float)
+    p.add_argument("-erase_alpha", default=0.0, type=float)
 
     # get other arguments from the signature
     model_args = inspect.getfullargspec(model)

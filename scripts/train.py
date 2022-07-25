@@ -63,6 +63,7 @@ Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
 loader_params = {
     "mixup_alpha": args.pop("mixup_alpha"),
     "cutmix_alpha": args.pop("cutmix_alpha"),
+    "erase_alpha": args.pop("erase_alpha"),
 }
 opt_params = {"loss": args.pop("loss"), "weight_decay": args.pop("weight_decay")}
 model_params = args
@@ -163,7 +164,7 @@ if __name__ == "__main__":
         BATCH_SIZE,
         VAL_SIZE,
         trainer.accelerator,
-        **loader_params,
+        loader_params=loader_params,
         model_params=model_params,
     )
 
