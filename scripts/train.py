@@ -13,9 +13,8 @@
 #     name: python3
 # ---
 
-import sys
-
 # + tags=[]
+import sys
 from importlib import import_module
 from pathlib import Path
 
@@ -73,12 +72,20 @@ class Model(ARCH):
             self.loss = torch.nn.MSELoss()
         elif opt_params["loss"] == "huber":
             self.loss = torch.nn.HuberLoss()
+        self.lr = 3e-4
+        self.decay = opt_params["weight_decay"]
 
         kernel_size = kwargs.get("kernel_size", 0)
         self.example_input_array = torch.rand((1, 4, 80 + 2 * (kernel_size // 2)))
+        self.dummy_loader = Dream(
+            torch.rand((10, 4, 80)), torch.rand(10), **loader_params
+        )
+        self.tta = 100
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0)
+        optimizer = torch.optim.AdamW(
+            self.parameters(), lr=self.lr, weight_decay=self.decay
+        )
         return optimizer
 
     def on_train_start(self):
@@ -105,13 +112,17 @@ class Model(ARCH):
         return self.step(batch, batch_idx, "test")
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        seq, rc, _ = batch
-        return self(seq, rc)
+        return self.augment_and_predict(batch, self.tta)
 
     def step(self, batch, batch_idx, label):
 
         seq, rc, y = batch
-        y_pred = self(seq, rc)
+
+        if label in ["val", "test"]:
+            y_pred = self.augment_and_predict(batch, self.tta)
+        else:
+            y_pred = self(seq, rc)
+
         loss = self.loss(y, y_pred)
 
         self.log(f"{label}/loss", loss)
@@ -119,6 +130,26 @@ class Model(ARCH):
         self.log(f"{label}/spearman", spearman_corrcoef(y, y_pred.float()))
 
         return loss
+
+    def augment_and_predict(self, batch, n):
+
+        seq, rc, y = batch
+
+        if not self.dummy_loader.transforms or self.tta == 1:
+            return self(seq, rc)
+
+        preds = torch.zeros(y.shape)
+
+        for i in range(n):
+            seq_i, rc_i = seq.clone(), rc.clone()
+            for j in range(seq.shape[0]):
+                seq_i[j], rc_i[j], _ = self.dummy_loader.apply_transforms(
+                    0, seq_i[j], rc_i[j], y[j]
+                )
+
+            preds += self(seq_i, rc_i)
+
+        return preds / n
 
     def validation_epoch_end(self, val_step_outputs):
         avg_loss = torch.Tensor(val_step_outputs).mean()
@@ -147,6 +178,7 @@ if __name__ == "__main__":
         max_epochs=N_EPOCHS,
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
+        auto_lr_find=True,
         # NOTE comment out next two lines in dev machines
         gpus=-1,
         strategy="ddp_find_unused_parameters_false",
@@ -188,4 +220,3 @@ if __name__ == "__main__":
             logger.log_dir,
             here("data/dream/sample_submission.json"),
         )
-# -
