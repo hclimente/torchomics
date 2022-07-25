@@ -51,8 +51,10 @@ sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
 for k, v in args.items():
     if type(v) is list:
-        v = ",".join(v) if v else "none"
-    elif k in ["mixup_alpha", "cutmix_alpha"] and v == 0.0:
+        v = f"[{','.join(str(x) for x in v)}]" if v else "none"
+    elif (
+        k in ["weight_decay", "mixup_alpha", "cutmix_alpha", "erase_alpha"] and v == 0.0
+    ):
         continue
 
     version += f"-{k}={v}"

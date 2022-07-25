@@ -3,8 +3,7 @@ from .basenji import Basenji
 from .simple_cnn import (
     AttentionResNet18,
     AttentionResNet50,
-    ConvNeXt26,
-    ConvNeXt50,
+    ConvNeXt,
     DeepCNN,
     DenseNet,
     MultiHeadAttentionResNet18,
@@ -36,8 +35,6 @@ __all__ = [
     "ResNet50",
     "ResNeXt18",
     "ResNeXt50",
-    "ConvNeXt26",
-    "ConvNeXt50",
     "Wannabe",
     "SimpleLSTM",
     "DeepLSTM",
