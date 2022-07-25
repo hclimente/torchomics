@@ -159,7 +159,6 @@ class ResNet(pl.LightningModule):
             RevCompConv1D(4, self.channels_in, 3),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
-            nn.MaxPool1d(2),
         )
 
         self.layer1 = self._make_layer(
@@ -176,7 +175,11 @@ class ResNet(pl.LightningModule):
         )
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
 
-        self.fc = nn.Linear(8 * base_width * block.expansion, 1)
+        self.fc = self.fc = nn.Sequential(
+            nn.Linear(8 * base_width * block.expansion, 128),
+            nn.ReLU(),
+            nn.Linear(128, 1),
+        )
 
     def forward(self, x, rc=None):
 
