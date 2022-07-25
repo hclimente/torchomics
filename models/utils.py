@@ -105,24 +105,30 @@ def init_weights(layer, init="glorot"):
         constant_(layer.bias.data, 0.0)
 
 
-def parser(model):
+def parser():
 
     p = argparse.ArgumentParser()
     p.add_argument("-loss", default="mse", type=str, choices=["mse", "huber"])
     p.add_argument("-weight_decay", default=0, type=float)
     p.add_argument("-seed", default=0, type=int)
-    p.add_argument("-mixup_alpha", default=0.0, type=float)
-    p.add_argument("-cutmix_alpha", default=0.0, type=float)
-    p.add_argument("-erase_alpha", default=0.0, type=float)
+
+    return p
+
+
+def parser_from_object(obj):
+
+    p = argparse.ArgumentParser()
 
     # get other arguments from the signature
-    model_args = inspect.getfullargspec(model)
+    args = inspect.getfullargspec(obj)
 
-    argnames = model_args.args[1:]
-    defaults = model_args.defaults if argnames else []
-    types = typing.get_type_hints(model.__init__)
+    argnames = args.args[1:]
+    defaults = args.defaults if argnames else []
+    types = typing.get_type_hints(obj.__init__)
 
     for arg, val in zip(argnames, defaults):
+        if val is None:
+            continue
         if types[arg] is list:
             p.add_argument(f"-{arg}", default=val, nargs="+", type=int)
         else:

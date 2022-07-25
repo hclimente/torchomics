@@ -27,8 +27,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
-from data import DreamDM, save_preds
-from models.utils import parser
+from data import Dream, DreamDM, save_preds
+from models.utils import parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
@@ -41,34 +41,27 @@ N_EPOCHS = 12
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
-args = vars(parser(ARCH).parse_args(sys.argv[1:]))
-seed = args.pop("seed")
+opt_params, rest = parser().parse_known_args(sys.argv[1:])
+opt_params = vars(opt_params)
+model_params, rest = parser_from_object(ARCH).parse_known_args(rest)
+model_params = vars(model_params)
+loader_params = vars(parser_from_object(Dream).parse_args(rest))
 
 # prepare logs path
 logs_path = f"{here('results/models/')}/{model_name}/"
 
+seed = opt_params.pop("seed")
 sha = Repo(search_parent_directories=True).head.object.hexsha
 version = sha[:5]
-for k, v in args.items():
+for k, v in (opt_params | model_params | loader_params).items():
     if type(v) is list:
         v = f"[{','.join(str(x) for x in v)}]" if v else "none"
-    elif (
-        k in ["weight_decay", "mixup_alpha", "cutmix_alpha", "erase_alpha"] and v == 0.0
-    ):
+    elif (k in loader_params.keys() or k == "weight_decay") and v == 0.0:
         continue
 
     version += f"-{k}={v}"
 
 Path(f"{logs_path}/{version}/").mkdir(parents=True, exist_ok=True)
-
-# get additional hyperparameters
-loader_params = {
-    "mixup_alpha": args.pop("mixup_alpha"),
-    "cutmix_alpha": args.pop("cutmix_alpha"),
-    "erase_alpha": args.pop("erase_alpha"),
-}
-opt_params = {"loss": args.pop("loss"), "weight_decay": args.pop("weight_decay")}
-model_params = args
 
 
 # + tags=[]
@@ -155,10 +148,10 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
         # NOTE comment out next two lines in dev machines
-        # gpus=-1,
-        # strategy="ddp_find_unused_parameters_false",
+        gpus=-1,
+        strategy="ddp_find_unused_parameters_false",
         # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
-        # precision=16,
+        precision=16,
         deterministic=True,
     )
     dm = DreamDM(

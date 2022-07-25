@@ -13,8 +13,8 @@ from data.utils import load, one_hot_encode
 class Dream(Dataset):
     def __init__(
         self,
-        sequences: torch.Tensor,
-        expression: torch.Tensor,
+        sequences: torch.Tensor = None,
+        expression: torch.Tensor = None,
         mixup_alpha: float = 0.0,
         cutmix_alpha: float = 0.0,
         erase_alpha: float = 0.0,
