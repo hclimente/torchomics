@@ -31,7 +31,7 @@ from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
-model_name = "ConvNeXt"
+model_name = "SimpleCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
