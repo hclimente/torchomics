@@ -114,16 +114,16 @@ class Model(ARCH):
         self.logger.log_hyperparams(hparams, {"test/pearson": 0, "test/spearman": 0})
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "train", dm.train_dataset())
+        return self.step(batch, batch_idx, "train", dm.train)
 
     def validation_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "val", dm.val_dataset())
+        return self.step(batch, batch_idx, "val", dm.val)
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "test", dm.test_dataset())
+        return self.step(batch, batch_idx, "test", dm.test)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        return self.augment_predict(batch, dm.pred_dataset())
+        return self.augment_predict(batch, dm.pred)
 
     def step(self, batch, batch_idx, label, dataset=None):
 
