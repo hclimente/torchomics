@@ -39,7 +39,21 @@ N_EPOCHS = 12
 
 # setup
 # create fake arguments if in interactive mode
-sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
+sys.argv = (
+    [
+        "train.py",
+        "-mixup_alpha",
+        "0.5",
+        "-cutmix_alpha",
+        "0.5",
+        "-erase_alpha",
+        "0.5",
+        "-n_mutations",
+        "1",
+    ]
+    if hasattr(sys, "ps1")
+    else sys.argv
+)
 model_params, rest = parser_from_object(ARCH).parse_known_args(sys.argv[1:])
 model_params = vars(model_params)
 opt_params, rest = base_parser().parse_known_args(rest)
@@ -109,14 +123,14 @@ class Model(ARCH):
         return self.step(batch, batch_idx, "test", dm.test_dataset())
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        return self.augment_and_predict(batch, dm.pred_dataset())
+        return self.augment_predict(batch, dm.pred_dataset())
 
     def step(self, batch, batch_idx, label, dataset=None):
 
         seq, rc, y = batch
 
         if label in ["val", "test"]:
-            y_pred = self.augment_and_predict(batch, dataset)
+            y_pred = self.augment_predict(dataset, batch, batch_idx)
         else:
             y_pred = self(seq, rc)
 
@@ -128,7 +142,7 @@ class Model(ARCH):
 
         return loss
 
-    def augment_and_predict(self, batch, dataset):
+    def augment_predict(self, dataset, batch, batch_idx):
 
         seq, rc, y = batch
 
@@ -138,13 +152,8 @@ class Model(ARCH):
         preds = torch.zeros(y.shape, device=seq.device)
 
         for i in range(self.tta):
-            seq_i, rc_i = seq.clone(), rc.clone()
-            for j in range(seq.shape[0]):
-                seq_i[j], rc_i[j], _ = dataset.apply_transforms(
-                    0, seq_i[j], rc_i[j], y[j]
-                )
-
-            preds += self(seq_i, rc_i)
+            seq, rc, _ = dataset.transform(batch, collate=False)
+            preds += self(seq, rc)
 
         return preds / self.tta
 
@@ -177,10 +186,10 @@ if __name__ == "__main__":
         logger=logger,
         auto_lr_find=True,
         # NOTE comment out next two lines in dev machines
-        gpus=-1,
-        strategy="ddp_find_unused_parameters_false",
-        # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
-        precision=16,
+        # gpus=-1,
+        # strategy="ddp_find_unused_parameters_false",
+        # # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
+        # precision=16,
         deterministic=True,
     )
     dm = DreamDM(

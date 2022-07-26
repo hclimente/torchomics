@@ -4,11 +4,11 @@ import torch
 from torch.distributions.beta import Beta
 
 
-class Transform:
+class Transform(torch.nn.Module):
     def __init__(self):
-        pass
+        super().__init__()
 
-    def __call__(self, *args):
+    def forward(self, *args):
         if self:
             args = [x.clone() for x in args]
             return self.apply(*args)
@@ -30,7 +30,7 @@ class Mixup(Transform):
 
         p = self.p_dist.sample()
 
-        r_seq, r_rc, r_expr = item_sampler(self.dataset)
+        r_seq, r_rc, r_expr = seq.roll(1, 0), rc.roll(1, 0), expression.roll(1, 0)
         seq = p * seq + (1 - p) * r_seq
         rc = p * rc + (1 - p) * r_rc
         expression = p * expression + (1 - p) * r_expr
@@ -50,7 +50,7 @@ class Cutmix(Transform):
 
     def apply(self, seq, rc, expression):
 
-        length = seq.shape[1]
+        length = seq.shape[2]
 
         p = self.p_dist.sample()
         width = int(length * torch.sqrt(1 - p) / 2)
@@ -58,9 +58,9 @@ class Cutmix(Transform):
         pos = random.randint(0, length)
         x0, x1 = max(0, pos - width), min(length, pos + width)
 
-        r_seq, r_rc, r_expr = item_sampler(self.dataset)
-        seq[:, x0:x1] = r_seq[:, x0:x1]
-        rc[:, x0:x1] = r_rc[:, x0:x1]
+        r_seq, r_rc, r_expr = seq.roll(1, 0), rc.roll(1, 0), expression.roll(1, 0)
+        seq[:, :, x0:x1] = r_seq[:, :, x0:x1]
+        rc[:, :, x0:x1] = r_rc[:, :, x0:x1]
         expression = p * expression + (1 - p) * r_expr
 
         return seq, rc, expression
@@ -77,7 +77,7 @@ class RandomErase(Transform):
 
     def apply(self, seq, rc, expression):
 
-        length = seq.shape[1]
+        length = seq.shape[2]
 
         p = self.p_dist.sample()
         width = int(length * torch.sqrt(1 - p) / 2)
@@ -85,8 +85,8 @@ class RandomErase(Transform):
         pos = random.randint(0, length)
         x0, x1 = max(0, pos - width), min(length, pos + width)
 
-        seq[:, x0:x1] = torch.rand(seq[:, x0:x1].shape)
-        rc[:, x0:x1] = torch.rand(rc[:, x0:x1].shape)
+        seq[:, :, x0:x1] = torch.rand(seq[:, :, x0:x1].shape)
+        rc[:, :, x0:x1] = torch.rand(rc[:, :, x0:x1].shape)
 
         return seq, rc, expression
 
@@ -101,18 +101,11 @@ class Mutate(Transform):
 
     def apply(self, seq, rc, expression):
 
-        length = seq.shape[1]
+        length = seq.shape[2]
 
         pos = torch.randint(high=length, size=(self.n,))
         perm = torch.vstack([torch.randperm(4) for _ in range(self.n)]).T
-
-        seq[:, pos] = seq[perm, pos]
-        rc[:, pos] = rc[perm, pos]
+        seq[:, :, pos] = seq[:, perm, pos]
+        rc = seq.flip(1, 2)
 
         return seq, rc, expression
-
-
-def item_sampler(dataset):
-    i = random.randint(0, len(dataset) - 1)
-
-    return dataset.sequences[i], dataset.rc_sequences[i], dataset.expression[i]
