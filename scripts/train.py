@@ -135,7 +135,7 @@ class Model(ARCH):
         if dataset is None or not dataset.transforms or self.tta == 1:
             return self(seq, rc)
 
-        preds = torch.zeros(y.shape)
+        preds = torch.zeros(y.shape, device=seq.device)
 
         for i in range(self.tta):
             seq_i, rc_i = seq.clone(), rc.clone()
