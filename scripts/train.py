@@ -186,10 +186,10 @@ if __name__ == "__main__":
         logger=logger,
         auto_lr_find=True,
         # NOTE comment out next two lines in dev machines
-        # gpus=-1,
-        # strategy="ddp_find_unused_parameters_false",
-        # # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
-        # precision=16,
+        gpus=-1,
+        strategy="ddp_find_unused_parameters_false",
+        # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
+        precision=16,
         deterministic=True,
     )
     dm = DreamDM(
