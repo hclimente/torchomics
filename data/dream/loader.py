@@ -5,6 +5,7 @@ from typing import Optional
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.dataloader import default_collate
 
 from data.transforms import Cutmix, Mixup, Mutate, RandomErase
 from data.utils import load, one_hot_encode
@@ -40,18 +41,24 @@ class Dream(Dataset):
         rc = self.rc_sequences[idx, :]
         expression = self.expression[idx, None]
 
-        return self.apply_transforms(idx, seq, rc, expression)
+        return seq, rc, expression
 
     def cache_rc(self):
         self.rc_sequences = self.sequences.flip(1, 2)
 
-    def apply_transforms(self, idx, seq, rc, expression):
+    def transform(self, batch, collate=True):
 
-        if self.transforms and idx % 5 == 0:
+        # https://github.com/pytorch/vision/blob/main/references/classification/transforms.py
+        # https://github.com/pytorch/vision/blob/main/references/classification/train.py
+
+        if collate:
+            batch = default_collate(batch)
+
+        if self.transforms:
             t = random.choice(self.transforms)
-            seq, rc, expression = t(seq, rc, expression)
+            batch = t(*batch)
 
-        return seq, rc, expression
+        return batch
 
 
 class DreamDM(pl.LightningDataModule):
@@ -134,7 +141,11 @@ class DreamDM(pl.LightningDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            self.train_dataset(), shuffle=True, drop_last=True, **self.params
+            self.train_dataset(),
+            shuffle=True,
+            drop_last=True,
+            collate_fn=self.train_dataset().transform,
+            **self.params,
         )
 
     def val_dataset(self):
