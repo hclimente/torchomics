@@ -13,9 +13,6 @@ from .simple_cnn import (
     ResNeXt18,
     ResNeXt50,
     SimpleCNN,
-    SimpleCNN_BN,
-    SimpleCNN_GELU,
-    SimpleCNN_RC,
     Wannabe,
 )
 from .simple_rnn import DeepLSTM, SimpleLSTM
@@ -27,10 +24,7 @@ __all__ = [
     "VaishnavCNN",
     "OneStrandCNN",
     "SimpleCNN",
-    "SimpleCNN_BN",
-    "SimpleCNN_GELU",
     "DeepCNN",
-    "SimpleCNN_RC",
     "ResNet18",
     "ResNet50",
     "ResNeXt18",

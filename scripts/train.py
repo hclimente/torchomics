@@ -31,7 +31,7 @@ from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
-model_name = "SimpleCNN"
+model_name = "DeepCNN"
 ARCH = getattr(import_module("models"), model_name)
 BATCH_SIZE = 1024
 VAL_SIZE = 10000
@@ -39,21 +39,7 @@ N_EPOCHS = 12
 
 # setup
 # create fake arguments if in interactive mode
-sys.argv = (
-    [
-        "train.py",
-        "-mixup_alpha",
-        "0.5",
-        "-cutmix_alpha",
-        "0.5",
-        "-erase_alpha",
-        "0.5",
-        "-n_mutations",
-        "1",
-    ]
-    if hasattr(sys, "ps1")
-    else sys.argv
-)
+sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
 model_params, rest = parser_from_object(ARCH).parse_known_args(sys.argv[1:])
 model_params = vars(model_params)
 opt_params, rest = base_parser().parse_known_args(rest)
@@ -114,23 +100,23 @@ class Model(ARCH):
         self.logger.log_hyperparams(hparams, {"test/pearson": 0, "test/spearman": 0})
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "train", dm.train)
+        return self.step(batch, "train", dm.train)
 
     def validation_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "val", dm.val)
+        return self.step(batch, "val", dm.val)
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, batch_idx, "test", dm.test)
+        return self.step(batch, "test", dm.test)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        return self.augment_predict(batch, dm.pred)
+        return self.augment_predict(batch, dm.pred.transform)
 
-    def step(self, batch, batch_idx, label, dataset=None):
+    def step(self, batch, label, dataset):
 
         seq, rc, y = batch
 
         if label in ["val", "test"]:
-            y_pred = self.augment_predict(dataset, batch, batch_idx)
+            y_pred = self.augment_predict(batch, dataset.transform)
         else:
             y_pred = self(seq, rc)
 
@@ -142,17 +128,17 @@ class Model(ARCH):
 
         return loss
 
-    def augment_predict(self, dataset, batch, batch_idx):
+    def augment_predict(self, batch, transform):
 
         seq, rc, y = batch
 
-        if dataset is None or not dataset.transforms or self.tta == 1:
+        if self.tta == 1:
             return self(seq, rc)
 
         preds = torch.zeros(y.shape, device=seq.device)
 
         for i in range(self.tta):
-            seq, rc, _ = dataset.transform(batch, collate=False)
+            seq, rc, _ = transform(batch, collate=False)
             preds += self(seq, rc)
 
         return preds / self.tta

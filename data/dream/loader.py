@@ -118,7 +118,7 @@ class DreamDM(pl.LightningDataModule):
 
         lengths = [len(tr) - 2 * self.val_size, self.val_size, self.val_size]
         self.train, self.val, self.test = torch.utils.data.random_split(tr, lengths)
-        self.train = self.subset_data(self.train, **self.loader_params)
+        self.train = self.subset_data(self.train)
         self.val = self.subset_data(self.val, **self.loader_params)
         self.test = self.subset_data(self.test, **self.loader_params)
 
