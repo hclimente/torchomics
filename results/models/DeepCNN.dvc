@@ -1,0 +1,5 @@
+outs:
+- md5: 6957e438e7a9439233dcf9b885dd3fdf.dir
+  size: 8932296
+  nfiles: 120
+  path: DeepCNN
