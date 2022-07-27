@@ -8,6 +8,7 @@ from .v5_attn_resnet import (
     MultiHeadAttentionResNet18,
     MultiHeadAttentionResNet50,
 )
+from .v6_munext import MuNext
 
 __all__ = [
     "SimpleCNN",
@@ -23,4 +24,5 @@ __all__ = [
     "AttentionResNet50",
     "MultiHeadAttentionResNet18",
     "MultiHeadAttentionResNet50",
+    "MuNext",
 ]
