@@ -8,6 +8,7 @@ from .simple_cnn import (
     DenseNet,
     MultiHeadAttentionResNet18,
     MultiHeadAttentionResNet50,
+    MuNext,
     ResNet18,
     ResNet50,
     ResNeXt18,
@@ -45,4 +46,5 @@ __all__ = [
     "AttentionResNet50",
     "MultiHeadAttentionResNet18",
     "MultiHeadAttentionResNet50",
+    "MuNext",
 ]
