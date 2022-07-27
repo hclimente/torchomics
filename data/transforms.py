@@ -20,7 +20,7 @@ class Mixup(Transform):
     def __init__(self, alpha, dataset):
         super().__init__()
         self.alpha = alpha
-        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+        self.p_dist = Beta(1, alpha) if alpha > 0 else None
         self.dataset = dataset
 
     def __bool__(self):
@@ -42,7 +42,7 @@ class Cutmix(Transform):
     def __init__(self, alpha, dataset):
         super().__init__()
         self.alpha = alpha
-        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+        self.p_dist = Beta(alpha, 1) if alpha > 0 else None
         self.dataset = dataset
 
     def __bool__(self):
@@ -53,7 +53,7 @@ class Cutmix(Transform):
         length = seq.shape[2]
 
         p = self.p_dist.sample()
-        width = int(length * torch.sqrt(1 - p) / 2)
+        width = int(length * p / 2)
 
         pos = random.randint(0, length)
         x0, x1 = max(0, pos - width), min(length, pos + width)
@@ -70,7 +70,7 @@ class RandomErase(Transform):
     def __init__(self, alpha):
         super().__init__()
         self.alpha = alpha
-        self.p_dist = Beta(alpha, alpha) if alpha > 0 else None
+        self.p_dist = Beta(alpha, 1) if alpha > 0 else None
 
     def __bool__(self):
         return self.alpha != 0
@@ -80,7 +80,7 @@ class RandomErase(Transform):
         length = seq.shape[2]
 
         p = self.p_dist.sample()
-        width = int(length * torch.sqrt(1 - p) / 2)
+        width = int(length * p / 2)
 
         pos = random.randint(0, length)
         x0, x1 = max(0, pos - width), min(length, pos + width)
