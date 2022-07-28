@@ -77,6 +77,9 @@ class Model(ARCH):
         self.tta = 100
 
         kernel_size = kwargs.get("kernel_size", 0)
+        if type(kernel_size) is list:
+            kernel_size = kernel_size[0]
+
         self.example_input_array = torch.rand((1, 4, 80 + 2 * (kernel_size // 2)))
 
     def configure_optimizers(self):

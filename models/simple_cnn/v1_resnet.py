@@ -157,6 +157,8 @@ class ResNet(pl.LightningModule):
 
         if type(kernel_size) is not list:
             kernel_size = [kernel_size] * (len(layers) + 1)
+        elif len(kernel_size) == 1:
+            kernel_size = kernel_size * (len(layers) + 1)
 
         self.input = nn.Sequential(
             RevCompConv1D(4, self.channels_in, kernel_size[0]),
@@ -237,7 +239,7 @@ class ConvNeXt(ResNet):
         self,
         layers: list = [3, 3, 9, 3],
         base_width: int = 96,
-        kernel_size: int = 7,
+        kernel_size: list = [15],
     ):
         super().__init__(
             layers,
