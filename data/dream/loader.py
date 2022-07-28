@@ -75,8 +75,11 @@ class DreamDM(pl.LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_size = val_size
-        self.kernel_size = model_params.get("kernel_size", 0)
         self.loader_params = loader_params
+
+        self.kernel_size = model_params.get("kernel_size", 0)
+        if type(self.kernel_size) is list:
+            self.kernel_size = self.kernel_size[0]
 
         self.dev_machine = True
         if isinstance(accelerator, pl.accelerators.Accelerator):

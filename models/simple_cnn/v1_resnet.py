@@ -155,23 +155,26 @@ class ResNet(pl.LightningModule):
 
         self.channels_in = base_width
 
+        if type(kernel_size) is not list:
+            kernel_size = [kernel_size] * (len(layers) + 1)
+
         self.input = nn.Sequential(
-            RevCompConv1D(4, self.channels_in, 3),
+            RevCompConv1D(4, self.channels_in, kernel_size[0]),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
         )
 
         self.layer1 = self._make_layer(
-            block, layers[0], base_width, kernel_size, stride=1, groups=groups
+            block, layers[0], base_width, kernel_size[1], stride=1, groups=groups
         )
         self.layer2 = self._make_layer(
-            block, layers[1], 2 * base_width, kernel_size, stride=2, groups=groups
+            block, layers[1], 2 * base_width, kernel_size[2], stride=2, groups=groups
         )
         self.layer3 = self._make_layer(
-            block, layers[2], 4 * base_width, kernel_size, stride=2, groups=groups
+            block, layers[2], 4 * base_width, kernel_size[3], stride=2, groups=groups
         )
         self.layer4 = self._make_layer(
-            block, layers[3], 8 * base_width, kernel_size, stride=2, groups=groups
+            block, layers[3], 8 * base_width, kernel_size[4], stride=2, groups=groups
         )
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
 
