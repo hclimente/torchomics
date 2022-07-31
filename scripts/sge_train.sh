@@ -9,4 +9,4 @@
 . /fefs/opt/dgx/env_set/nvcr-pytorch-2204.sh
 export PYTHONPATH=/home/hclimente/projects/dna2prot:${PYTHONPATH}
 
-python scripts/train.py -seed $SGE_TASK_ID -loss mse -kernel_size 15 15 15 15 9 -layers 3 9 9 3
+python scripts/train.py -seed $SGE_TASK_ID -loss mse -kernel_size 7 -layers 3 9 9 3 -n_mutations 1
