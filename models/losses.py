@@ -4,6 +4,18 @@ import torch
 import torch.nn as nn
 
 
+class PearsonLoss(nn.Module):
+    def __init__(self):
+
+        super(PearsonLoss, self).__init__()
+        self.cos = nn.CosineSimilarity(dim=0, eps=1e-6)
+
+    def forward(self, x1, x2):
+
+        pearson = self.cos(x1, x2)
+        return -torch.mean(pearson)
+
+
 class OrdinalClassificationLoss(nn.Module):
     def __init__(self):
         super(OrdinalClassificationLoss, self).__init__()
