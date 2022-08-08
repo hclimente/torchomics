@@ -17,11 +17,10 @@ class Transform(torch.nn.Module):
 
 
 class Mixup(Transform):
-    def __init__(self, alpha, dataset):
+    def __init__(self, alpha):
         super().__init__()
         self.alpha = alpha
         self.p_dist = Beta(1, alpha) if alpha > 0 else None
-        self.dataset = dataset
 
     def __bool__(self):
         return self.alpha != 0
@@ -39,11 +38,10 @@ class Mixup(Transform):
 
 
 class Cutmix(Transform):
-    def __init__(self, alpha, dataset):
+    def __init__(self, alpha):
         super().__init__()
         self.alpha = alpha
         self.p_dist = Beta(alpha, 1) if alpha > 0 else None
-        self.dataset = dataset
 
     def __bool__(self):
         return self.alpha != 0

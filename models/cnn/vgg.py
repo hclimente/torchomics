@@ -31,9 +31,9 @@ class SimpleCNN(pl.LightningModule):
         return x
 
 
-class DeepCNN(pl.LightningModule):
+class VGG(pl.LightningModule):
     def __init__(self, kernel_size: int = 15):
-        super(DeepCNN, self).__init__()
+        super(VGG, self).__init__()
 
         def conv_block(channels_in, channels_out, width, padding="same"):
             return nn.Sequential(

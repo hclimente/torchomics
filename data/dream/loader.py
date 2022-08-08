@@ -26,8 +26,8 @@ class Dream(Dataset):
         self.expression = expression.float()
 
         self.transforms = [
-            Mixup(mixup_alpha, self),
-            Cutmix(cutmix_alpha, self),
+            Mixup(mixup_alpha),
+            Cutmix(cutmix_alpha),
             RandomErase(erase_alpha),
             Mutate(n_mutations),
         ]

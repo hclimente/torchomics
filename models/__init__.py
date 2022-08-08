@@ -1,10 +1,10 @@
 from ._version import __version__
-from .basenji import Basenji
-from .simple_cnn import (
+from .cnn import (
+    VGG,
     AttentionResNet18,
     AttentionResNet50,
+    Basenji,
     ConvNeXt,
-    DeepCNN,
     DenseNet,
     MultiHeadAttentionResNet18,
     MultiHeadAttentionResNet50,
@@ -16,8 +16,8 @@ from .simple_cnn import (
     SimpleCNN,
     Wannabe,
 )
-from .simple_rnn import DeepLSTM, SimpleLSTM
-from .simple_transformer import Transformer
+from .rnn import DeepLSTM, SimpleLSTM
+from .transformer import Transformer
 from .utils import fix_seeds
 from .vaishnav import OneStrandCNN, VaishnavCNN
 
@@ -25,7 +25,7 @@ __all__ = [
     "VaishnavCNN",
     "OneStrandCNN",
     "SimpleCNN",
-    "DeepCNN",
+    "VGG",
     "ResNet18",
     "ResNet50",
     "ResNeXt18",

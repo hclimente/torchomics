@@ -1,8 +1,8 @@
 import torch.nn as nn
 
+from models.cnn.resnet import ResNet
+from models.cnn.v5_attn_resnet import MultiHeadAttention as MHA
 from models.layers import RevCompConv1D
-from models.simple_cnn.v1_resnet import ResNet
-from models.simple_cnn.v5_attn_resnet import MultiHeadAttention as MHA
 
 
 class MuNext(ResNet):
