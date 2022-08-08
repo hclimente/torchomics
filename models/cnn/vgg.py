@@ -32,33 +32,41 @@ class SimpleCNN(pl.LightningModule):
 
 
 class VGG(pl.LightningModule):
-    def __init__(self, kernel_size: int = 15):
+    def __init__(self, kernel_size: int = 3, layers: list = [2, 2, 3, 3, 3]):
         super(VGG, self).__init__()
 
-        def conv_block(channels_in, channels_out, width, padding="same"):
-            return nn.Sequential(
-                nn.Conv1d(channels_in, channels_out, width, padding=padding),
-                nn.BatchNorm1d(channels_out),
-                nn.GELU(),
-                nn.MaxPool1d(2),
-            )
+        def conv_block(channels_in, channels_out, width, nb_repeats):
+            block = []
 
-        self.conv = nn.Sequential(
-            conv_block(4, 250, kernel_size, "valid"),
-            conv_block(250, 360, kernel_size),
-            conv_block(360, 432, kernel_size),
-            conv_block(432, 520, kernel_size),
-            conv_block(520, 624, kernel_size),
-        )
+            padding = "valid" if channels_in == 4 else "same"
 
+            for _ in range(nb_repeats):
+                block.append(
+                    nn.Conv1d(channels_in, channels_out, width, padding=padding)
+                )
+                block.append(nn.ReLU())
+                channels_in = channels_out
+
+            block.append(nn.MaxPool1d(2, stride=2))
+
+            return block
+
+        blocks = []
+        channels_in = 4
+        channels_out = 64
+
+        for n in layers:
+            blocks.extend(conv_block(channels_in, channels_out, kernel_size, n))
+            channels_in = channels_out
+            channels_out = min(512, 2 * channels_out)
+
+        self.conv = nn.Sequential(*blocks)
         self.fc = nn.Sequential(
-            nn.Linear(1248, 512),
+            nn.Linear(1024, 256),
             nn.ReLU(),
-            nn.Linear(512, 128),
+            nn.Linear(256, 256),
             nn.ReLU(),
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Linear(128, 1),
+            nn.Linear(256, 1),
         )
 
     def forward(self, x, rc=None):

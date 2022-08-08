@@ -32,18 +32,16 @@ from models.utils import base_parser, parser_from_object
 # + tags=[]
 # hyperparameters
 model_name = "ConvNeXt"
-ARCH = getattr(import_module("models"), model_name)
-BATCH_SIZE = 1024
 VAL_SIZE = 10000
-N_EPOCHS = 12
 
 # setup
 # create fake arguments if in interactive mode
 sys.argv = ["train.py"] if hasattr(sys, "ps1") else sys.argv
-model_params, rest = parser_from_object(ARCH).parse_known_args(sys.argv[1:])
-model_params = vars(model_params)
-opt_params, rest = base_parser().parse_known_args(rest)
+opt_params, rest = base_parser().parse_known_args(sys.argv[1:])
 opt_params = vars(opt_params)
+ARCH = getattr(import_module("models"), opt_params["model"])
+model_params, rest = parser_from_object(ARCH).parse_known_args(rest)
+model_params = vars(model_params)
 loader_params = vars(parser_from_object(Dream).parse_args(rest))
 
 # prepare logs path
@@ -91,8 +89,6 @@ class Model(ARCH):
     def on_train_start(self):
         # store hyperparameters
         hparams = {
-            "batch_size": BATCH_SIZE,
-            "model": model_name,
             "sha": sha,
             "seed": seed,
             **loader_params,
@@ -170,7 +166,7 @@ if __name__ == "__main__":
         save_last=True,
     )
     trainer = pl.Trainer(
-        max_epochs=N_EPOCHS,
+        max_epochs=opt_params["epochs"],
         callbacks=[checkpoint_callback, RichProgressBar()],
         logger=logger,
         auto_lr_find=True,
@@ -183,7 +179,7 @@ if __name__ == "__main__":
     )
     dm = DreamDM(
         here("data/dream/"),
-        BATCH_SIZE,
+        opt_params["batch_size"],
         VAL_SIZE,
         trainer.accelerator,
         loader_params=loader_params,

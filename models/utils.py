@@ -110,6 +110,9 @@ def base_parser():
     p = argparse.ArgumentParser()
     p.add_argument("-loss", default="mse", type=str, choices=["mse", "huber"])
     p.add_argument("-weight_decay", default=0, type=float)
+    p.add_argument("-batch_size", default=1024, type=int)
+    p.add_argument("-model", default="SimpleCNN", type=str)
+    p.add_argument("-epochs", default=12, type=int)
     p.add_argument("-seed", default=0, type=int)
 
     return p
