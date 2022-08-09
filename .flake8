@@ -1,6 +1,5 @@
 [flake8]
 per-file-ignores =
-    data/__init__.py:F401
     models/__init__.py:F401
     src/templates/classification/stg.py:F401
 ignore = E203

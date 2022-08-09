@@ -10,29 +10,20 @@ dependencies:
   - pyprojroot
   - pytorch
   - pytorch-lightning
+  - python-lsp-server
   - jupytext
   - torchvision
   - umap-learn
-  - pip:
-      - zenodo_get
   # required
-  - dvc
-  - dvc-gdrive
   - ipython
   - ipywidgets
   - jupyterlab
   - libblas=*=*_mkl
   - nextflow
-  - pip
   - pytest
   - python=3
-  - r-irkernel
   # usually good to have
   - gitpython
-  - r
-  - rpy2
-  - r-tidyverse
   - pandas
   - scikit-learn
   - scikit-learn-intelex
-  - seaborn
