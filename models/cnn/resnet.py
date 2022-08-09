@@ -275,7 +275,7 @@ class ConvNeXt(ResNet):
         self,
         layers: list = [3, 3, 9, 3],
         base_width: int = 96,
-        kernel_size: list = [15],
+        kernel_size: list = [7],
     ):
         super().__init__(
             layers,

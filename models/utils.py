@@ -1,13 +1,8 @@
-import argparse
-import inspect
 import random
-import typing
 from functools import reduce
-from os.path import isfile
 from typing import Any
 
 import numpy as np
-import pandas as pd
 import scipy
 import torch
 import torch.nn as nn
@@ -108,42 +103,6 @@ def init_weights(layer, init="glorot"):
         constant_(layer.bias.data, 0.0)
 
 
-def base_parser():
-
-    p = argparse.ArgumentParser()
-    p.add_argument("-batch_size", default=1024, type=int)
-    p.add_argument("-epochs", default=12, type=int)
-    p.add_argument("-loss", default="mse", type=str, choices=["mse", "huber"])
-    p.add_argument("-model", default="SimpleCNN", type=str)
-    p.add_argument("-seed", default=0, type=int)
-    p.add_argument("-tta", default=1, type=int)
-    p.add_argument("-weight_decay", default=0, type=float)
-
-    return p
-
-
-def parser_from_object(obj):
-
-    p = argparse.ArgumentParser()
-
-    # get other arguments from the signature
-    args = inspect.getfullargspec(obj.__init__)
-
-    argnames = args.args[1:]
-    defaults = args.defaults if argnames else []
-    types = typing.get_type_hints(obj.__init__)
-
-    for arg, val in zip(argnames, defaults):
-        if val is None:
-            continue
-        if types[arg] is list:
-            p.add_argument(f"-{arg}", default=val, nargs="+", type=int)
-        else:
-            p.add_argument(f"-{arg}", default=val, type=types[arg])
-
-    return p
-
-
 def pad(seq, expected):
 
     # remove primers
@@ -157,24 +116,6 @@ def pad(seq, expected):
         return seq + tail
     if len(seq) > expected:
         return seq[:expected]
-
-
-def load(table, cached, obj, path="data/dream", sep="\t"):
-
-    cached = f"{path}/{cached}"
-
-    if isfile(cached):
-        ds = torch.load(cached)
-    else:
-        sequences = pd.read_csv(
-            f"{path}/{table}",
-            sep=sep,
-            names=["seq", "expr"],
-        )
-        ds = obj(sequences.seq, torch.Tensor(sequences.expr))
-        torch.save(ds, cached)
-
-    return ds
 
 
 def one_hot_encode(
