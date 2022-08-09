@@ -72,13 +72,17 @@ class Model(ARCH):
             self.loss = torch.nn.HuberLoss()
         self.lr = 3e-4
         self.decay = opt_params["weight_decay"]
-        self.tta = 100
+        self.tta = opt_params["tta"]
 
         kernel_size = kwargs.get("kernel_size", 0)
         if type(kernel_size) is list:
             kernel_size = kernel_size[0]
 
         self.example_input_array = torch.rand((1, 4, 80 + 2 * (kernel_size // 2)))
+
+    def count_params(self):
+        # trainable parameters only
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
@@ -89,6 +93,7 @@ class Model(ARCH):
     def on_train_start(self):
         # store hyperparameters
         hparams = {
+            "n_parameters": self.count_params(),
             "sha": sha,
             "seed": seed,
             **loader_params,
