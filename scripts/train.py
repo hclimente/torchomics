@@ -26,7 +26,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 
-from data import Dream, DreamDM, save_preds
+from data import Dream, DreamDM
 from models.utils import base_parser, parser_from_object
 
 # + tags=[]
@@ -175,10 +175,10 @@ if __name__ == "__main__":
         logger=logger,
         auto_lr_find=True,
         # NOTE comment out next two lines in dev machines
-        gpus=-1,
-        strategy="ddp_find_unused_parameters_false",
-        # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
-        precision=16,
+        # gpus=-1,
+        # strategy="ddp_find_unused_parameters_false",
+        # # resume_from_checkpoint=f"{logs_path}/version_X/checkpoints/last.ckpt",
+        # precision=16,
         deterministic=True,
     )
     dm = DreamDM(
@@ -210,8 +210,8 @@ if __name__ == "__main__":
         )
         trainer.test(model, datamodule=dm)
         preds = trainer.predict(model, datamodule=dm)
-        save_preds(
-            torch.vstack(preds),
-            logger.log_dir,
-            here("data/dream/sample_submission.json"),
-        )
+        # save_preds(
+        #     torch.vstack(preds),
+        #     logger.log_dir,
+        #     here("data/dream/sample_submission.json"),
+        # )
