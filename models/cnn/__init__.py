@@ -1,6 +1,6 @@
 from .basenji import Basenji
 from .densenet import DenseNet
-from .resnet import ConvNeXt, ResNet18, ResNet50, ResNeXt18, ResNeXt50
+from .resnet import ConvNeXt, ResNet, ResNeXt
 from .v2_resnet_wannabe import Wannabe
 from .v5_attn_resnet import (
     AttentionResNet18,
@@ -16,10 +16,8 @@ __all__ = [
     "VGG",
     "Basenji",
     "Wannabe",
-    "ResNet18",
-    "ResNet50",
-    "ResNeXt18",
-    "ResNeXt50",
+    "ResNet",
+    "ResNeXt",
     "ConvNeXt",
     "DenseNet",
     "AttentionResNet18",
