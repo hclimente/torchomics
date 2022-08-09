@@ -31,7 +31,6 @@ from models.utils import base_parser, parser_from_object
 
 # + tags=[]
 # hyperparameters
-model_name = "ConvNeXt"
 VAL_SIZE = 10000
 
 # setup
@@ -45,7 +44,7 @@ model_params = vars(model_params)
 loader_params = vars(parser_from_object(Dream).parse_args(rest))
 
 # prepare logs path
-logs_path = f"{here('results/models/')}/{model_name}/"
+logs_path = f"{here('results/models/')}/{opt_params['model']}/"
 
 seed = opt_params.pop("seed")
 sha = Repo(search_parent_directories=True).head.object.hexsha
