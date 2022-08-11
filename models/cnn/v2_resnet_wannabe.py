@@ -1,10 +1,9 @@
-import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.utils import conv_block
 
 
-class Wannabe(pl.LightningModule):
+class Wannabe(nn.Module):
     def __init__(
         self, p_dropout: float = 0.1, kernel_size: int = 7, nb_repeats: int = 3
     ):
@@ -34,7 +33,7 @@ class Wannabe(pl.LightningModule):
         return x
 
 
-class ResidualWannabe(pl.LightningModule):
+class ResidualWannabe(nn.Module):
     def __init__(self, module):
         super(ResidualWannabe, self).__init__()
 

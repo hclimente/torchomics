@@ -1,4 +1,3 @@
-import pytorch_lightning as pl
 import torch.nn as nn
 
 from models.layers import RevCompConv1D
@@ -149,7 +148,7 @@ class ConvNeXtBottleneck(nn.Module):
         return x
 
 
-class ResNet(pl.LightningModule):
+class ResNet(nn.Module):
     def __init__(self, layers, block, kernel_size=7, base_width=64, groups=1):
         super(ResNet, self).__init__()
 

@@ -17,12 +17,11 @@ class Transformer(nn.Module):
         d_hidden: int = 512,
         p_dropout: float = 0.1,
     ):
-
         """
-        n_layers    - number of transformer modules
-        d_model     - dimension of token embeddings
-        d_head      - number of self-attention heads in each layer
-        d_hidden    - hidden dimension in self-attention heads (K/Q/V dimension)
+        n_layers - number of transformer modules
+        d_model  - dimension of token embeddings
+        d_head   - number of self-attention heads in each layer
+        d_hidden - hidden dimension in self-attention heads (K/Q/V dimension)
         """
 
         super(Transformer, self).__init__()

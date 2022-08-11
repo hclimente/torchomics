@@ -5,11 +5,11 @@ channels:
   - defaults
 dependencies:
   # project-specific packages
+  - matplotlib
   - numpy==1.21
   - biopython
   - pyprojroot
   - pytorch
-  - pytorch-lightning
   - python-lsp-server
   - jupytext
   - torchvision

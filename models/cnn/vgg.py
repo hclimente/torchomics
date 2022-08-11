@@ -1,8 +1,7 @@
-import pytorch_lightning as pl
 import torch.nn as nn
 
 
-class SimpleCNN(pl.LightningModule):
+class SimpleCNN(nn.Module):
     def __init__(self, p_dropout: float = 0.0, kernel_size: int = 5):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Sequential(
@@ -31,7 +30,7 @@ class SimpleCNN(pl.LightningModule):
         return x
 
 
-class VGG(pl.LightningModule):
+class VGG(nn.Module):
     def __init__(self, kernel_size: int = 3, layers: list = [2, 2, 3, 3, 3]):
         super(VGG, self).__init__()
 

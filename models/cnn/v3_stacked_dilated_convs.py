@@ -1,8 +1,7 @@
-import pytorch_lightning as pl
 import torch.nn as nn
 
 
-class StackedNet(pl.LightningModule):
+class StackedNet(nn.Module):
     def __init__(self):
         super(StackedNet, self).__init__()
 

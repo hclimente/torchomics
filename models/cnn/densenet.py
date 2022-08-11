@@ -1,10 +1,9 @@
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
-class DenseNet(pl.LightningModule):
+class DenseNet(nn.Module):
     def __init__(
         self,
         growth_rate: int = 3,

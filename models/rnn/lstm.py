@@ -1,9 +1,8 @@
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 
 
-class SimpleLSTM(pl.LightningModule):
+class SimpleLSTM(nn.Module):
     def __init__(self, embedding_size: int = 16, width: int = 256):
 
         super(SimpleLSTM, self).__init__()
@@ -21,7 +20,7 @@ class SimpleLSTM(pl.LightningModule):
         return x
 
 
-class DeepLSTM(pl.LightningModule):
+class DeepLSTM(nn.Module):
     def __init__(self, embedding_size: int = 16, width: int = 256):
 
         super(DeepLSTM, self).__init__()

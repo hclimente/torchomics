@@ -1,8 +1,7 @@
-import pytorch_lightning as pl
 import torch.nn as nn
 
 
-class OneStrandCNN(pl.LightningModule):
+class OneStrandCNN(nn.Module):
     def __init__(self, p_dropout: float = 0.2):
         super(OneStrandCNN, self).__init__()
 

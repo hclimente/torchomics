@@ -1,9 +1,8 @@
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 
 
-class VaishnavCNN(pl.LightningModule):
+class VaishnavCNN(nn.Module):
     def __init__(self, p_dropout: float = 0.2, seq_length: int = 80):
         super(VaishnavCNN, self).__init__()
 
