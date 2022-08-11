@@ -3,6 +3,98 @@ import torch.nn as nn
 from torchomics.layers import RevCompConv1D
 
 
+class GenericResNet(nn.Module):
+    def __init__(
+        self, layers, block, kernel_size=7, base_width=64, groups=1, p_dropout=0.0
+    ):
+        super(GenericResNet, self).__init__()
+
+        self.channels_in = base_width
+
+        if type(kernel_size) is not list:
+            kernel_size = [kernel_size] * (len(layers) + 1)
+        elif len(kernel_size) == 1:
+            kernel_size = kernel_size * (len(layers) + 1)
+
+        self.input = nn.Sequential(
+            RevCompConv1D(4, self.channels_in, kernel_size[0]),
+            nn.BatchNorm1d(self.channels_in),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+        )
+
+        self.layer1 = self._make_layer(
+            block, layers[0], base_width, kernel_size[1], stride=1, groups=groups
+        )
+        self.layer2 = self._make_layer(
+            block, layers[1], 2 * base_width, kernel_size[2], stride=2, groups=groups
+        )
+        self.layer3 = self._make_layer(
+            block, layers[2], 4 * base_width, kernel_size[3], stride=2, groups=groups
+        )
+        self.layer4 = self._make_layer(
+            block, layers[3], 8 * base_width, kernel_size[4], stride=2, groups=groups
+        )
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
+
+        self.fc = self.fc = nn.Sequential(
+            nn.Linear(8 * base_width * block.expansion, 256),
+            nn.Dropout(p_dropout),
+            nn.ReLU(),
+            nn.Linear(256, 96),
+            nn.Dropout(p_dropout),
+            nn.ReLU(),
+            nn.Linear(96, 1),
+        )
+
+    def forward(self, x, rc=None):
+
+        x = self.input(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.avg_pool(x)
+
+        x = x.reshape(x.shape[0], -1)
+        x = self.fc(x)
+
+        return x
+
+    def _make_layer(self, block, nb_repeats, width, kernel_size, stride=1, groups=1):
+
+        downsample = None
+        layers = []
+
+        expanded_width = width * block.expansion
+
+        if stride != 1 or self.channels_in != expanded_width:
+            downsample = nn.Sequential(
+                nn.Conv1d(
+                    self.channels_in, expanded_width, 1, stride=stride, bias=False
+                ),
+                nn.BatchNorm1d(expanded_width),
+            )
+
+        for _ in range(nb_repeats):
+            layers.append(
+                block(
+                    self.channels_in,
+                    width,
+                    kernel_size,
+                    stride,
+                    groups,
+                    downsample,
+                )
+            )
+            downsample = None  # downsampling only occurs in the first block
+            stride = 1
+            self.channels_in = expanded_width
+
+        return nn.Sequential(*layers)
+
+
 class BasicBlock(nn.Module):
 
     expansion: int = 1
@@ -146,98 +238,6 @@ class ConvNeXtBottleneck(nn.Module):
         x = identity + self.bottleneck(x)
 
         return x
-
-
-class GenericResNet(nn.Module):
-    def __init__(
-        self, layers, block, kernel_size=7, base_width=64, groups=1, p_dropout=0.0
-    ):
-        super(GenericResNet, self).__init__()
-
-        self.channels_in = base_width
-
-        if type(kernel_size) is not list:
-            kernel_size = [kernel_size] * (len(layers) + 1)
-        elif len(kernel_size) == 1:
-            kernel_size = kernel_size * (len(layers) + 1)
-
-        self.input = nn.Sequential(
-            RevCompConv1D(4, self.channels_in, kernel_size[0]),
-            nn.BatchNorm1d(self.channels_in),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-        )
-
-        self.layer1 = self._make_layer(
-            block, layers[0], base_width, kernel_size[1], stride=1, groups=groups
-        )
-        self.layer2 = self._make_layer(
-            block, layers[1], 2 * base_width, kernel_size[2], stride=2, groups=groups
-        )
-        self.layer3 = self._make_layer(
-            block, layers[2], 4 * base_width, kernel_size[3], stride=2, groups=groups
-        )
-        self.layer4 = self._make_layer(
-            block, layers[3], 8 * base_width, kernel_size[4], stride=2, groups=groups
-        )
-        self.avg_pool = nn.AdaptiveAvgPool1d(1)
-
-        self.fc = self.fc = nn.Sequential(
-            nn.Linear(8 * base_width * block.expansion, 256),
-            nn.Dropout(p_dropout),
-            nn.ReLU(),
-            nn.Linear(256, 96),
-            nn.Dropout(p_dropout),
-            nn.ReLU(),
-            nn.Linear(96, 1),
-        )
-
-    def forward(self, x, rc=None):
-
-        x = self.input(x)
-
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.avg_pool(x)
-
-        x = x.reshape(x.shape[0], -1)
-        x = self.fc(x)
-
-        return x
-
-    def _make_layer(self, block, nb_repeats, width, kernel_size, stride=1, groups=1):
-
-        downsample = None
-        layers = []
-
-        expanded_width = width * block.expansion
-
-        if stride != 1 or self.channels_in != expanded_width:
-            downsample = nn.Sequential(
-                nn.Conv1d(
-                    self.channels_in, expanded_width, 1, stride=stride, bias=False
-                ),
-                nn.BatchNorm1d(expanded_width),
-            )
-
-        for _ in range(nb_repeats):
-            layers.append(
-                block(
-                    self.channels_in,
-                    width,
-                    kernel_size,
-                    stride,
-                    groups,
-                    downsample,
-                )
-            )
-            downsample = None  # downsampling only occurs in the first block
-            stride = 1
-            self.channels_in = expanded_width
-
-        return nn.Sequential(*layers)
 
 
 class ResNet(GenericResNet):

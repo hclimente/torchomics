@@ -6,9 +6,17 @@ from torchomics.layers import RevCompConv1D
 
 
 class DenseNet(nn.Module):
+    # DenseNet121: layers = [6, 12, 24, 16], growth_rate = 32
+    # DenseNet169: layers = [6, 12, 32, 32], growth_rate = 32
+    # DenseNet201: layers = [6, 12, 48, 32], growth_rate = 32
+    # DenseNet264: layers = [6, 12, 64, 48], growth_rate = 32
+    # Other regimes:
+    # layers = [12, 12, 12], growth_rate = 12
+    # layers = [32, 32, 32], growth_rate = 12
+    # layers = [32, 32, 32], growth_rate = 24
     def __init__(
         self,
-        layers: list = [6, 12, 24, 16],
+        layers: list = [6, 12, 32, 32],
         growth_rate: int = 32,
         base_width: int = 16,
         kernel_size: int = 3,
@@ -29,8 +37,8 @@ class DenseNet(nn.Module):
             return nn.Sequential(*layers)
 
         self.input = nn.Sequential(
-            RevCompConv1D(4, base_width, kernel_size),
-            nn.MaxPool1d(2),
+            RevCompConv1D(4, base_width, kernel_size, stride=2),
+            nn.MaxPool1d(3, stride=2),
         )
 
         conv_layers = []
@@ -43,9 +51,10 @@ class DenseNet(nn.Module):
             channels_in = channels_out
 
         self.conv = nn.Sequential(*conv_layers)
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
 
         self.fc = nn.Sequential(
-            nn.Linear(2 * channels_out, 256),
+            nn.Linear(channels_out, 256),
             nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(256, 96),
@@ -57,7 +66,8 @@ class DenseNet(nn.Module):
     def forward(self, x, rc=None):
         x = self.input(x)
         x = self.conv(x)
-        x = x.view(x.size()[0], -1)
+        x = self.avg_pool(x)
+        x = x.reshape(x.shape[0], -1)
         x = self.fc(x)
         return x
 
@@ -113,5 +123,5 @@ class Transition(nn.Module):
 
     def forward(self, x):
         x = self.conv(F.relu(self.bn(x)))
-        x = F.avg_pool1d(x, 2)
+        x = F.avg_pool1d(x, 2, stride=2)
         return x
