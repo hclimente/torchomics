@@ -13,7 +13,7 @@ setup: $(CONDA_ENV)
 	pre-commit install
 
 test:
-	$(CONDA_ACTIVATE); pytest test
+	$(CONDA_ACTIVATE); pytest -s test
 
 $(CONDA_ENV): environment.yml
 	mamba env create --force --prefix $(CONDA_ENV) --file environment.yml

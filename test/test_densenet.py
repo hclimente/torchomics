@@ -6,8 +6,8 @@ import torch
 from torchomics import DenseNet, one_hot_encode
 
 input_length = 80
-net1 = DenseNet()
-net2 = DenseNet(bottleneck=True)
+no_bottleneck = DenseNet()
+bottleneck = DenseNet(bottleneck=True)
 
 
 def test_forward():
@@ -18,14 +18,14 @@ def test_forward():
     seq = seq[None, :]
     seq3 = torch.vstack((seq, seq, seq))
 
-    assert np.all(list(net1.forward(seq, seq).shape) == [1, 1])
-    assert np.all(list(net1.forward(seq3, seq3).shape) == [3, 1])
+    assert np.all(list(no_bottleneck.forward(seq, seq).shape) == [1, 1])
+    assert np.all(list(no_bottleneck.forward(seq3, seq3).shape) == [3, 1])
 
-    assert np.all(list(net2.forward(seq, seq).shape) == [1, 1])
-    assert np.all(list(net2.forward(seq3, seq3).shape) == [3, 1])
+    assert np.all(list(bottleneck.forward(seq, seq).shape) == [1, 1])
+    assert np.all(list(bottleneck.forward(seq3, seq3).shape) == [3, 1])
 
 
 def test_str():
 
-    assert net1.__class__.__name__ == "DenseNet"
-    assert net2.__class__.__name__ == "DenseNet"
+    assert no_bottleneck.__class__.__name__ == "DenseNet"
+    assert bottleneck.__class__.__name__ == "DenseNet"

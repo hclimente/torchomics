@@ -2,20 +2,25 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torchomics.layers import RevCompConv1D
+
 
 class DenseNet(nn.Module):
     def __init__(
         self,
-        growth_rate: int = 3,
-        nb_repeats: int = 3,
+        layers: list = [6, 12, 24, 16],
+        growth_rate: int = 32,
+        base_width: int = 16,
+        kernel_size: int = 3,
         p_dropout: float = 0.0,
         bottleneck: bool = False,
         reduction: float = 0.9,
     ):
         super(DenseNet, self).__init__()
 
-        def dense_block(channels_in, growth_rate, nb_repeats, layer):
+        def dense_block(channels_in, growth_rate, nb_repeats, bottleneck):
             layers = []
+            layer = DenseLayer if not bottleneck else BottleneckLayer
 
             for _ in range(nb_repeats):
                 layers.append(layer(channels_in, growth_rate))
@@ -23,23 +28,24 @@ class DenseNet(nn.Module):
 
             return nn.Sequential(*layers)
 
-        layer = DenseLayer if not bottleneck else BottleneckLayer
+        self.input = nn.Sequential(
+            RevCompConv1D(4, base_width, kernel_size),
+            nn.MaxPool1d(2),
+        )
 
         conv_layers = []
-        channels_in = 4
-
-        for _ in range(3):
-            conv_layers.append(dense_block(channels_in, growth_rate, nb_repeats, layer))
-
-            channels_in += growth_rate * nb_repeats
-            channels_out = int(channels_in * reduction)
+        channels_in = base_width
+        for n in layers:
+            conv_layers.append(dense_block(channels_in, growth_rate, n, bottleneck))
+            channels_in += n * growth_rate
+            channels_out = int(channels_in * 0.9)
             conv_layers.append(Transition(channels_in, channels_out))
             channels_in = channels_out
 
         self.conv = nn.Sequential(*conv_layers)
 
         self.fc = nn.Sequential(
-            nn.Linear(10 * channels_out, 256),
+            nn.Linear(2 * channels_out, 256),
             nn.Dropout(p_dropout),
             nn.ReLU(),
             nn.Linear(256, 96),
@@ -49,6 +55,7 @@ class DenseNet(nn.Module):
         )
 
     def forward(self, x, rc=None):
+        x = self.input(x)
         x = self.conv(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)

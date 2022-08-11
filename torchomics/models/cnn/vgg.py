@@ -1,5 +1,7 @@
 import torch.nn as nn
 
+from torchomics.layers import RevCompConv1D
+
 
 class SimpleCNN(nn.Module):
     def __init__(self, p_dropout: float = 0.0, kernel_size: int = 5):
@@ -37,11 +39,9 @@ class VGG(nn.Module):
         def conv_block(channels_in, channels_out, width, nb_repeats):
             block = []
 
-            padding = "valid" if channels_in == 4 else "same"
-
             for _ in range(nb_repeats):
                 block.append(
-                    nn.Conv1d(channels_in, channels_out, width, padding=padding)
+                    nn.Conv1d(channels_in, channels_out, width, padding="same")
                 )
                 block.append(nn.ReLU())
                 channels_in = channels_out
@@ -50,8 +50,15 @@ class VGG(nn.Module):
 
             return block
 
+        self.input = nn.Sequential(
+            RevCompConv1D(4, 64, kernel_size, padding="valid"),
+            nn.ReLU(),
+        )
+
+        layers[0] -= 1
+
         blocks = []
-        channels_in = 4
+        channels_in = 64
         channels_out = 64
 
         for n in layers:
@@ -69,6 +76,7 @@ class VGG(nn.Module):
         )
 
     def forward(self, x, rc=None):
+        x = self.input(x)
         x = self.conv(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)
