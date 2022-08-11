@@ -1,6 +1,6 @@
 import numpy as np
 
-from data import one_hot_encode
+from models import one_hot_encode
 
 
 def test_one_hot_encode():

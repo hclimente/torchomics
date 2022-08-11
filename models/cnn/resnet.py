@@ -148,9 +148,11 @@ class ConvNeXtBottleneck(nn.Module):
         return x
 
 
-class ResNet(nn.Module):
-    def __init__(self, layers, block, kernel_size=7, base_width=64, groups=1):
-        super(ResNet, self).__init__()
+class GenericResNet(nn.Module):
+    def __init__(
+        self, layers, block, kernel_size=7, base_width=64, groups=1, p_dropout=0.0
+    ):
+        super(GenericResNet, self).__init__()
 
         self.channels_in = base_width
 
@@ -180,9 +182,13 @@ class ResNet(nn.Module):
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
 
         self.fc = self.fc = nn.Sequential(
-            nn.Linear(8 * base_width * block.expansion, 128),
+            nn.Linear(8 * base_width * block.expansion, 256),
+            nn.Dropout(p_dropout),
             nn.ReLU(),
-            nn.Linear(128, 1),
+            nn.Linear(256, 96),
+            nn.Dropout(p_dropout),
+            nn.ReLU(),
+            nn.Linear(96, 1),
         )
 
     def forward(self, x, rc=None):
@@ -233,7 +239,7 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
-class ResNet(ResNet):
+class ResNet(GenericResNet):
     # ResNet18: layers = [2, 2, 2, 2]
     # ResNet50: layers = [3, 4, 6, 3]
     def __init__(
@@ -241,6 +247,7 @@ class ResNet(ResNet):
         layers: list = [3, 4, 6, 3],
         base_width: int = 64,
         kernel_size: list = [3],
+        p_dropout: float = 0.0,
     ):
         super().__init__(
             layers,
@@ -250,7 +257,7 @@ class ResNet(ResNet):
         )
 
 
-class ResNeXt(ResNet):
+class ResNeXt(GenericResNet):
     # ResNeXt18: layers = [2, 2, 2, 2]
     # ResNeXt50: layers = [3, 4, 6, 3]
     def __init__(
@@ -259,6 +266,7 @@ class ResNeXt(ResNet):
         base_width: int = 64,
         groups: int = 32,
         kernel_size: list = [3],
+        p_dropout: float = 0.0,
     ):
         super().__init__(
             layers,
@@ -269,12 +277,13 @@ class ResNeXt(ResNet):
         )
 
 
-class ConvNeXt(ResNet):
+class ConvNeXt(GenericResNet):
     def __init__(
         self,
         layers: list = [3, 3, 9, 3],
         base_width: int = 96,
         kernel_size: list = [7],
+        p_dropout: float = 0.0,
     ):
         super().__init__(
             layers,

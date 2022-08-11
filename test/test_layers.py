@@ -3,7 +3,7 @@ import random
 import numpy as np
 import torch
 
-from data import one_hot_encode
+from models import one_hot_encode
 from models.layers import RevCompConv1D
 
 input_length = 80

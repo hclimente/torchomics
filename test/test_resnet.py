@@ -3,11 +3,10 @@ import random
 import numpy as np
 import torch
 
-from data import one_hot_encode
-from models import ResNet50
+from models import ResNet, one_hot_encode
 
 input_length = 80
-cnn = ResNet50()
+cnn = ResNet()
 
 
 def test_forward():
@@ -24,4 +23,4 @@ def test_forward():
 
 def test_str():
 
-    assert cnn.__class__.__name__ == "ResNet50"
+    assert cnn.__class__.__name__ == "ResNet"
