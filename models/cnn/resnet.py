@@ -165,6 +165,7 @@ class GenericResNet(nn.Module):
             RevCompConv1D(4, self.channels_in, kernel_size[0]),
             nn.BatchNorm1d(self.channels_in),
             nn.ReLU(),
+            nn.MaxPool1d(2),
         )
 
         self.layer1 = self._make_layer(
