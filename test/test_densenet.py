@@ -3,7 +3,7 @@ import random
 import numpy as np
 import torch
 
-from models import DenseNet, one_hot_encode
+from torchomics import DenseNet, one_hot_encode
 
 input_length = 80
 net1 = DenseNet()

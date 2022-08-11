@@ -3,8 +3,9 @@ import math
 import torch
 import torch.nn as nn
 
-from models.cnn.resnet import BasicBlock, Bottleneck, ResNet
-from models.layers import RevCompConv1D
+from torchomics.layers import RevCompConv1D
+
+from .resnet import BasicBlock, Bottleneck, ResNet
 
 
 class SelfAttention(nn.Module):

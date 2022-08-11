@@ -1,5 +1,5 @@
 from ._version import __version__
-from .cnn import (
+from .models.cnn import (
     VGG,
     AttentionResNet18,
     AttentionResNet50,
@@ -14,8 +14,8 @@ from .cnn import (
     SimpleCNN,
     Wannabe,
 )
-from .rnn import DeepLSTM, SimpleLSTM
-from .transformer import Transformer
+from .models.rnn import DeepLSTM, SimpleLSTM
+from .models.transformer import Transformer
 from .transforms import Cutmix, Mixup, Mutate, RandomErase
 from .utils import one_hot_encode, pad
 

@@ -3,7 +3,7 @@ import random
 import numpy as np
 import torch
 
-from models import Basenji, one_hot_encode
+from torchomics import Basenji, one_hot_encode
 
 input_length = 80
 cnn = Basenji()

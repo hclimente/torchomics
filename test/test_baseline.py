@@ -3,8 +3,8 @@ import random
 import numpy as np
 import torch
 
-from models import one_hot_encode
-from models.vaishnav import VaishnavCNN
+from torchomics import one_hot_encode
+from torchomics.models.cnn import VaishnavCNN
 
 input_length = 110
 cnn = VaishnavCNN(seq_length=input_length)

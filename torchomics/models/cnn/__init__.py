@@ -9,6 +9,7 @@ from .v5_attn_resnet import (
     MultiHeadAttentionResNet50,
 )
 from .v6_munext import MuNext
+from .vaishnav import VaishnavCNN
 from .vgg import VGG, SimpleCNN
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "MultiHeadAttentionResNet18",
     "MultiHeadAttentionResNet50",
     "MuNext",
+    "VaishnavCNN",
 ]

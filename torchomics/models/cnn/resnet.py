@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from models.layers import RevCompConv1D
+from torchomics.layers import RevCompConv1D
 
 
 class BasicBlock(nn.Module):

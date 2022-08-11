@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from models.utils import conv_block
+from torchomics.utils import conv_block
 
 
 class Wannabe(nn.Module):

@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from models.utils import Residual, conv_block
+from torchomics.utils import Residual, conv_block
 
 
 class Basenji(nn.Module):

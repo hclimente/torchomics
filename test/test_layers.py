@@ -3,8 +3,8 @@ import random
 import numpy as np
 import torch
 
-from models import one_hot_encode
-from models.layers import RevCompConv1D
+from torchomics import one_hot_encode
+from torchomics.layers import RevCompConv1D
 
 input_length = 80
 layer = RevCompConv1D(4, 20, 15, padding="same")
