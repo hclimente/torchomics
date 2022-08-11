@@ -1,10 +1,10 @@
 ###############################
 # GLOBALS
 CONDA_ENV = ./env/
-CONDA_ACTIVATE = eval "$$(conda shell.bash hook)"; conda activate $(CONDA_ENV); export PYTHONPATH=`pwd`:$${PYTHONPATH}; alias python="python -m sklearnex"
+CONDA_ACTIVATE = eval "$$(conda shell.bash hook)"; conda activate $(CONDA_ENV); export PYTHONPATH=`pwd`:$${PYTHONPATH}
 SHELL=bash
 
-.PHONY: $(CONDA_ENV) clean jupyter setup gpu_setup test
+.PHONY: $(CONDA_ENV) clean setup test
 
 ###############################
 # COMMANDS

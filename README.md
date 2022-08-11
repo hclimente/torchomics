@@ -1,4 +1,4 @@
-# dna2prot
+# torchomics
 
 ## Pre-requisites
 
@@ -12,6 +12,4 @@ When the three of them are available, run the following commands:
 ```
 # install the virtual environment in ./env/
 make setup
-# (optional) if you want to contribute, install pre-commit
-pre-commit install
 ```

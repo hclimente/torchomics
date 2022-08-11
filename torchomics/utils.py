@@ -1,4 +1,3 @@
-import random
 from functools import reduce
 from typing import Any
 
@@ -7,13 +6,6 @@ import scipy
 import torch
 import torch.nn as nn
 from torch.nn.init import constant_, normal_, xavier_uniform_
-
-
-def fix_seeds(seed):
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    random.seed(seed)
-    np.random.seed(seed)
 
 
 def pearsonr(x, y):

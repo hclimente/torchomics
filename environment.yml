@@ -1,29 +1,15 @@
-name: dna2prot
+name: torchomics
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  # project-specific packages
   - matplotlib
   - numpy==1.21
-  - biopython
-  - pyprojroot
   - pytorch
   - python-lsp-server
-  - jupytext
-  - torchvision
-  - umap-learn
-  # required
-  - ipython
-  - ipywidgets
-  - jupyterlab
   - libblas=*=*_mkl
-  - nextflow
   - pytest
   - python=3
-  # usually good to have
+  - scipy
   - gitpython
-  - pandas
-  - scikit-learn
-  - scikit-learn-intelex
