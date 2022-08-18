@@ -13,3 +13,5 @@ dependencies:
   - python=3
   - scipy
   - gitpython
+  - pip:
+    - genomic-benchmarks

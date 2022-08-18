@@ -97,9 +97,8 @@ def init_weights(layer, init="glorot"):
 
 def pad(seq, expected):
 
-    # remove primers
-    seq = seq.removeprefix("TGCATTTTTTTCACATC")
-    seq = seq.removesuffix("GGTTACGGCTGTT")
+    if expected is None:
+        return seq
 
     if len(seq) == expected:
         return seq
@@ -116,8 +115,11 @@ def one_hot_encode(
     neutral_alphabet: str = "N",
     neutral_value: Any = 0,
     dtype=np.float32,
-) -> np.ndarray:
+    padding: float = None,
+) -> torch.tensor:
     """One-hot encode sequence."""
+
+    sequence = pad(sequence, padding)
 
     def to_uint8(string):
         return np.frombuffer(string.encode("ascii"), dtype=np.uint8)

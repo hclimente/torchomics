@@ -1,4 +1,5 @@
 from ._version import __version__
+from .data import OmicsDataset, import_genomics_benchmark
 from .models.cnn import (
     VGG,
     AttentionResNet18,
@@ -20,10 +21,14 @@ from .transforms import Cutmix, Mixup, Mutate, RandomErase
 from .utils import one_hot_encode, pad
 
 __all__ = [
+    "OmicsDataset",
+    "import_genomics_benchmark",
     "SimpleCNN",
     "VGG",
     "ResNet",
     "ResNeXt",
+    "DenseNet",
+    "ConvNeXt",
     "Wannabe",
     "SimpleLSTM",
     "DeepLSTM",
