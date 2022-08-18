@@ -1,7 +1,7 @@
 import torch
 from genomic_benchmarks.dataset_getters.pytorch_datasets import (
-    DemoHumanOrWorm,
     DemoMouseEnhancers,
+    HumanEnhancersCohn,
 )
 
 from torchomics.data import import_genomics_benchmark
@@ -10,7 +10,7 @@ from torchomics.utils import one_hot_encode
 
 def test_import_genomics_benchmark():
 
-    dset_1 = DemoHumanOrWorm("train", version=0)
+    dset_1 = HumanEnhancersCohn("train", version=0)
     dset_2 = DemoMouseEnhancers("train", version=0)
 
     for ds in [dset_1, dset_2]:
