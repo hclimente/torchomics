@@ -44,7 +44,7 @@ class Transformer(nn.Module):
 
         self.register_buffer("reg_token", torch.Tensor([[self.REG_TOKEN]]).int())
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
 
         # prepend regression token
         batch_reg_token = self.reg_token.repeat(x.shape[0], 1)

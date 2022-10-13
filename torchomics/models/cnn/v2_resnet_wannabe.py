@@ -26,7 +26,7 @@ class Wannabe(nn.Module):
             nn.Linear(64, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
         x = self.conv(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)

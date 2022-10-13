@@ -11,7 +11,7 @@ class SimpleLSTM(nn.Module):
         self.lstm = nn.LSTM(embedding_size, width, batch_first=True)
         self.fc = nn.Linear(width, 1)
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
 
         x = self.embedding(torch.argmax(x, axis=1))  # tokenise
         x, _ = self.lstm(x)
@@ -35,7 +35,7 @@ class DeepLSTM(nn.Module):
 
         self.fc = nn.Sequential(nn.Linear(width, 1))
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
 
         x = self.embedding(torch.argmax(x, axis=1))  # tokenise
 

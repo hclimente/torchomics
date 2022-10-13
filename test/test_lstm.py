@@ -17,8 +17,8 @@ def test_forward():
     seq = seq[None, :]
     seq3 = torch.vstack((seq, seq, seq))
 
-    assert np.all(list(lstm.forward(seq, seq).shape) == [1, 1])
-    assert np.all(list(lstm.forward(seq3, seq3).shape) == [3, 1])
+    assert np.all(list(lstm.forward(seq).shape) == [1, 1])
+    assert np.all(list(lstm.forward(seq3).shape) == [3, 1])
 
 
 def test_str():

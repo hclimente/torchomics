@@ -80,7 +80,7 @@ class AttentionResNet(ResNet):
         self.attn3 = attention_block(2 * base_width * block.expansion)
         self.attn4 = attention_block(4 * base_width * block.expansion)
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
 
         x = self.input(x)
         x = self.maxpool(x)

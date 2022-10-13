@@ -25,16 +25,15 @@ class Mixup(Transform):
     def __bool__(self):
         return self.alpha != 0
 
-    def apply(self, seq, rc, expression):
+    def apply(self, seq, expression):
 
         p = self.p_dist.sample()
 
-        r_seq, r_rc, r_expr = seq.roll(1, 0), rc.roll(1, 0), expression.roll(1, 0)
+        r_seq, r_expr = seq.roll(1, 0), expression.roll(1, 0)
         seq = p * seq + (1 - p) * r_seq
-        rc = p * rc + (1 - p) * r_rc
         expression = p * expression + (1 - p) * r_expr
 
-        return seq, rc, expression
+        return seq, expression
 
 
 class Cutmix(Transform):
@@ -46,7 +45,7 @@ class Cutmix(Transform):
     def __bool__(self):
         return self.alpha != 0
 
-    def apply(self, seq, rc, expression):
+    def apply(self, seq, expression):
 
         length = seq.shape[2]
 
@@ -56,12 +55,11 @@ class Cutmix(Transform):
         pos = random.randint(0, length)
         x0, x1 = max(0, pos - width), min(length, pos + width)
 
-        r_seq, r_rc, r_expr = seq.roll(1, 0), rc.roll(1, 0), expression.roll(1, 0)
+        r_seq, r_expr = seq.roll(1, 0), expression.roll(1, 0)
         seq[:, :, x0:x1] = r_seq[:, :, x0:x1]
-        rc[:, :, x0:x1] = r_rc[:, :, x0:x1]
         expression = p * expression + (1 - p) * r_expr
 
-        return seq, rc, expression
+        return seq, expression
 
 
 class RandomErase(Transform):
@@ -73,7 +71,7 @@ class RandomErase(Transform):
     def __bool__(self):
         return self.alpha != 0
 
-    def apply(self, seq, rc, expression):
+    def apply(self, seq, expression):
 
         length = seq.shape[2]
 
@@ -84,9 +82,8 @@ class RandomErase(Transform):
         x0, x1 = max(0, pos - width), min(length, pos + width)
 
         seq[:, :, x0:x1] = torch.rand(seq[:, :, x0:x1].shape)
-        rc[:, :, x0:x1] = torch.rand(rc[:, :, x0:x1].shape)
 
-        return seq, rc, expression
+        return seq, expression
 
 
 class Mutate(Transform):
@@ -97,13 +94,12 @@ class Mutate(Transform):
     def __bool__(self):
         return self.n > 0
 
-    def apply(self, seq, rc, expression):
+    def apply(self, seq, expression):
 
         length = seq.shape[2]
 
         pos = torch.randint(high=length, size=(self.n,))
         perm = torch.vstack([torch.randperm(4) for _ in range(self.n)]).T
         seq[:, :, pos] = seq[:, perm, pos]
-        rc = seq.flip(1, 2)
 
-        return seq, rc, expression
+        return seq, expression

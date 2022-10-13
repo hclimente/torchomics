@@ -11,8 +11,8 @@ from .utils import one_hot_encode
 class OmicsDataset(Dataset):
     def __init__(
         self,
-        sequences: torch.Tensor,
-        labels: list,
+        sequences: torch.Tensor = None,
+        labels: torch.Tensor = None,
         mixup_alpha: float = 0.0,
         cutmix_alpha: float = 0.0,
         erase_alpha: float = 0.0,
@@ -57,6 +57,6 @@ def import_genomics_benchmark(obj, *args, **kwargs):
     max_length = max([len(s) for s in seqs])
     seqs = torch.stack([one_hot_encode(s, padding=max_length) for s in seqs])
 
-    labels = [y for _, y in obj]
+    labels = torch.Tensor([y for _, y in obj])
 
     return OmicsDataset(seqs, labels, *args, **kwargs)

@@ -49,7 +49,7 @@ class Basenji(nn.Module):
             nn.Linear(1536, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
         x = self.convs(x)
         x = self.dilated_convs(x)
         x = x.view(x.size()[0], -1)

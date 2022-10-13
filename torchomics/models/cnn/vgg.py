@@ -25,7 +25,7 @@ class SimpleCNN(nn.Module):
             nn.Linear(96, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
         x = self.conv(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)
@@ -75,7 +75,7 @@ class VGG(nn.Module):
             nn.Linear(256, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
         x = self.input(x)
         x = self.conv(x)
         x = x.view(x.size()[0], -1)

@@ -63,7 +63,7 @@ class DenseNet(nn.Module):
             nn.Linear(96, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
         x = self.input(x)
         x = self.conv(x)
         x = self.avg_pool(x)

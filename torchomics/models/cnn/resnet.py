@@ -37,7 +37,7 @@ class GenericResNet(nn.Module):
         )
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
 
-        self.fc = self.fc = nn.Sequential(
+        self.fc = nn.Sequential(
             nn.Linear(8 * base_width * block.expansion, 256),
             nn.Dropout(p_dropout),
             nn.ReLU(),
@@ -47,7 +47,7 @@ class GenericResNet(nn.Module):
             nn.Linear(96, 1),
         )
 
-    def forward(self, x, rc=None):
+    def forward(self, x):
 
         x = self.input(x)
 

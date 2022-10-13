@@ -12,6 +12,6 @@ dependencies:
   - pytest
   - python=3
   - scipy
-  - gitpython
+  - jupyterlab
   - pip:
     - genomic-benchmarks
