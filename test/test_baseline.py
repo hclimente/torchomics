@@ -4,10 +4,10 @@ import numpy as np
 import torch
 
 from torchomics import one_hot_encode
-from torchomics.models.cnn import VaishnavCNN
+from torchomics.models.cnn import SimpleCNN
 
 input_length = 110
-cnn = VaishnavCNN(seq_length=input_length)
+cnn = SimpleCNN()
 
 
 def test_forward():
@@ -18,10 +18,10 @@ def test_forward():
     seq = seq[None, :]
     seq3 = torch.vstack((seq, seq, seq))
 
-    assert np.all(list(cnn.forward(seq, seq).shape) == [1, 1])
-    assert np.all(list(cnn.forward(seq3, seq3).shape) == [3, 1])
+    assert np.all(list(cnn.forward(seq).shape) == [1, 1])
+    assert np.all(list(cnn.forward(seq3).shape) == [3, 1])
 
 
 def test_str():
 
-    assert cnn.__class__.__name__ == "VaishnavCNN"
+    assert cnn.__class__.__name__ == "SimpleCNN"

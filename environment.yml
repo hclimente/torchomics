@@ -12,6 +12,7 @@ dependencies:
   - pytest
   - python=3
   - scipy
+  - twine
   - jupyterlab
   - pip:
     - genomic-benchmarks

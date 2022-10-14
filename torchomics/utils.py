@@ -2,32 +2,9 @@ from functools import reduce
 from typing import Any
 
 import numpy as np
-import scipy
 import torch
 import torch.nn as nn
 from torch.nn.init import constant_, normal_, xavier_uniform_
-
-
-def pearsonr(x, y):
-
-    x = numpify(x).flatten()
-    y = numpify(y).flatten()
-
-    r = scipy.stats.pearsonr(x, y)[0]
-    r = -100 if np.isnan(r) else r
-
-    return r
-
-
-def spearmanr(x, y):
-
-    x = numpify(x)
-    y = numpify(y)
-
-    r = scipy.stats.spearmanr(x, y)[0]
-    r = -100 if np.isnan(r) else r
-
-    return r
 
 
 def numpify(x):
