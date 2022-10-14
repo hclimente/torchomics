@@ -12,7 +12,7 @@ class SimpleCNN(nn.Module):
             nn.MaxPool1d(2),
             nn.Conv1d(16, 32, kernel_size, padding="same"),
             nn.ReLU(),
-            nn.MaxPool1d(2),
+            nn.AdaptiveAvgPool1d(20),
         )
 
         self.fc = nn.Sequential(
