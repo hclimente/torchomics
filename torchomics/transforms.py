@@ -23,7 +23,7 @@ class Mixup(Transform):
         self.p_dist = Beta(1, alpha) if alpha > 0 else None
 
     def __bool__(self):
-        return self.alpha != 0
+        return self.alpha > 0 and self.alpha < 1
 
     def apply(self, seq, expression):
 
@@ -43,7 +43,7 @@ class Cutmix(Transform):
         self.p_dist = Beta(alpha, 1) if alpha > 0 else None
 
     def __bool__(self):
-        return self.alpha != 0
+        return self.alpha > 0 and self.alpha < 1
 
     def apply(self, seq, expression):
 
@@ -69,7 +69,7 @@ class RandomErase(Transform):
         self.p_dist = Beta(alpha, 1) if alpha > 0 else None
 
     def __bool__(self):
-        return self.alpha != 0
+        return self.alpha > 0 and self.alpha < 1
 
     def apply(self, seq, expression):
 

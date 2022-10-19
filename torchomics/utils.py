@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import Any
 
 import numpy as np
@@ -45,13 +44,6 @@ def conv_block(
     block.append(nn.MaxPool1d(2))
 
     return nn.Sequential(*block)
-
-
-def count_params(net):
-    nb_params = 0
-    for param in net.parameters():
-        nb_params += reduce(lambda x, y: x * y, param.shape)
-    return nb_params
 
 
 def init_weights(layer, init="glorot"):
