@@ -67,8 +67,9 @@ class VGG(nn.Module):
             channels_out = min(512, 2 * channels_out)
 
         self.conv = nn.Sequential(*blocks)
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
         self.fc = nn.Sequential(
-            nn.Linear(1024, 256),
+            nn.Linear(channels_out, 256),
             nn.ReLU(),
             nn.Linear(256, 256),
             nn.ReLU(),
@@ -78,6 +79,7 @@ class VGG(nn.Module):
     def forward(self, x):
         x = self.input(x)
         x = self.conv(x)
+        x = self.avg_pool(x)
         x = x.view(x.size()[0], -1)
         x = self.fc(x)
         return x
