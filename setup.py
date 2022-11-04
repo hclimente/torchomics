@@ -7,7 +7,7 @@ setup(
     name="torchomics",
     packages=find_packages(),
     package_dir={"torchomics": "torchomics"},
-    version="0.1.2",
+    version="0.1.3",
     description="Datasets, transforms and models specific to genomics",
     long_description=readme,
     long_description_content_type="text/markdown",
