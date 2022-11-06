@@ -55,13 +55,13 @@ class VGG(nn.Module):
             nn.ReLU(),
         )
 
-        layers[0] -= 1
-
         blocks = []
         channels_in = 64
         channels_out = 64
 
-        for n in layers:
+        for i, n in enumerate(layers):
+            if i == 0:
+                n -= 1
             blocks.extend(conv_block(channels_in, channels_out, kernel_size, n))
             channels_in = channels_out
             channels_out = min(512, 2 * channels_out)
