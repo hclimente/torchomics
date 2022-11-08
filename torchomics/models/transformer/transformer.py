@@ -16,6 +16,7 @@ class Transformer(nn.Module):
         n_head: int = 8,
         d_hidden: int = 512,
         p_dropout: float = 0.1,
+        max_len: int = 81,
     ):
         """
         n_layers - number of transformer modules
@@ -27,7 +28,7 @@ class Transformer(nn.Module):
         super(Transformer, self).__init__()
 
         self.encoder = nn.Embedding(self.REG_TOKEN + 1, d_model)
-        self.pos_encoder = PositionalEncoding(d_model, p_dropout)
+        self.pos_encoder = PositionalEncoding(d_model, p_dropout, max_len + 1)
 
         encoder_layers = nn.TransformerEncoderLayer(
             d_model, n_head, d_hidden, p_dropout, batch_first=True
@@ -67,7 +68,9 @@ class PositionalEncoding(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
 
         position = torch.arange(max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(81.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2) * (-math.log(max_len) / d_model)
+        )
         pe = torch.zeros(1, max_len, d_model)
         pe[0, :, 0::2] = torch.sin(position * div_term)
         pe[0, :, 1::2] = torch.cos(position * div_term)
